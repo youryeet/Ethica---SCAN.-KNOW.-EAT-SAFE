@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ethica – Preferences</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      margin: 0;
+      background-color: #F5F5F5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #333;
+      padding: 2rem;
+    }
+
+    .app-container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+      animation: fadeIn 0.8s ease;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #4CAF50;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 1.8rem;
+    }
+
+    form {
+      text-align: left;
+      margin-top: 1rem;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #FAFAFA;
+      border: 1.5px solid #E0E0E0;
+      border-radius: 0.75rem;
+      padding: 0.6rem 1rem;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    label:hover {
+      background: #E8F5E9;
+      border-color: #4CAF50;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #4CAF50;
+      transform: scale(1.2);
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #43A047;
+    }
+
+    .footer {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #777;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <h1>🌿 Ethica</h1>
+    <p>Select your allergens & dietary preferences</p>
+
+    <form id="allergenForm">
+      <label><input type="checkbox" name="gluten"> Gluten-Free</label>
+      <label><input type="checkbox" name="dairy"> Dairy-Free</label>
+      <label><input type="checkbox" name="nuts"> Nut-Free</label>
+      <label><input type="checkbox" name="soy"> Soy-Free</label>
+      <label><input type="checkbox" name="eggs"> Egg-Free</label>
+      <label><input type="checkbox" name="vegan"> Vegan</label>
+      <label><input type="checkbox" name="kosher"> Kosher</label>
+      <label><input type="checkbox" name="jain"> Jain</label>
+      <label><input type="checkbox" name="vegetarian"> Vegetarian</label>
+      <label><input type="checkbox" name="pescatarian"> Pescatarian</label>
+      <label><input type="checkbox" name="shellfish"> Shellfish</label>
+      <label><input type="checkbox" name="peanuts"> Peanuts</label>
+<label><input type="checkbox" name="treeNuts"> Tree Nuts</label>
+<label><input type="checkbox" name="halal"> Halal</label>
+
+
+
+
+
+      <button type="button" id="nextBtn">Continue</button>
+    </form>
+
+    <div class="footer">
+      Guided by Ahimsa 💚
+    </div>
+  </div>
+
+  <script>
+    const userAllergens = {
+      gluten: false,
+      dairy: false,
+      nuts: false,
+      soy: false,
+      eggs: false,
+      vegan: false,
+      kosher: false,
+      jain: false,
+      vegetarian: false,
+      shellfish: false,
+      pescatarian: false,
+      treeNuts: false,
+      peanuts: false,
+      halal: false
+    };
+
+    const form = document.getElementById('allergenForm');
+    const nextBtn = document.getElementById('nextBtn');
+
+    form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const { name, checked } = e.target;
+        userAllergens[name] = checked;
+      });
+    });
+
+    nextBtn.addEventListener('click', () => {
+      localStorage.setItem('userAllergens', JSON.stringify(userAllergens));
+      window.location.href = 'product-analysis.html';
+    });
+  </script>
+
+</body>
+</html>
