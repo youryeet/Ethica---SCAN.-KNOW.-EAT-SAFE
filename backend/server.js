@@ -13,6 +13,8 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 app.post("/extract-ingredients", async (req, res) => {
   const { text } = req.body;
+console.log("Received text length:", text?.length);
+
 
   if (!text) return res.status(400).json({ error: "No text provided" });
 

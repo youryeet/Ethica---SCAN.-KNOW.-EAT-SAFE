@@ -208,7 +208,6 @@ input[type="file"]::file-selector-button:hover {
     <img url=""
     <h3> SCAN. KNOW. EAT SAFE – Scan Ingredients</h3>
     <p>Select an ingredient label image to assess environmental and dietary impact.</p>
-<h3> Note: Current maximum image text limit due to cost restrictions is 500 characters.</h3>
     <input type="file" id="imageInput" accept="image/*">
     <button onclick="runOCR()">Scan Ingredients</button>
 
@@ -1668,10 +1667,13 @@ async function extractWithOpenAI(text) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text })
+    
   });
   const data = await response.json();
   return data.ingredients;
 }
+console.log("Sending text length:", text.length);
+
 
 function calculateImpact(items) {
   if (!items || items.length === 0) {
@@ -1801,7 +1803,7 @@ ocrTextElement.innerHTML = '<div class="loader"></div><p>Scanning image... pleas
       .replace(/\s+/g, ' ')              
       .replace(/ingredients?[:\-]?\s*/i, '') 
       .trim();
-      cleanedText = await translateText(cleanedText, "en");
+cleanedText = await translateText(cleanedText, "en");
 console.log("🌐 Translated Text:", cleanedText);
 
 
@@ -2053,27 +2055,39 @@ function displaySustainability(items) {
   
   showInsights(items, overall, {co2Score, waterScore, animalScore});
 }
-async function translateText(text, targetLang = "en") {
-  try {
-    let response = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`
-    );
+function isProbablyEnglish(text) {
+  // Simple heuristic: count letters outside a-z / A-Z
+  const nonEnglish = text.replace(/[a-zA-Z\s]/g, '');
+  return (nonEnglish.length / text.length) < 0.3; // if <30% non-English chars, assume English
+}
 
-    let data = await response.json();
+async function translateText(text, targetLang = "en", defaultSource = "fr") {
+  // Skip translation if text is probably English
+  if (isProbablyEnglish(text)) return text;
 
-    if (data.responseStatus !== 200 || data.responseData.translatedText.includes("INVALID")) {
-      console.warn("⚠️ Retrying translation with fallback...");
-      response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=es|${targetLang}`
-      );
-      data = await response.json();
-    }
+  const maxLength = 500;
+  const chunks = [];
 
-    return data.responseData.translatedText || text;
-  } catch (error) {
-    console.error("Translation error:", error);
-    return text;
+  for (let i = 0; i < text.length; i += maxLength) {
+    chunks.push(text.slice(i, i + maxLength));
   }
+
+  const translatedChunks = [];
+
+  for (const chunk of chunks) {
+    try {
+      let response = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${defaultSource}|${targetLang}`
+      );
+      let data = await response.json();
+      translatedChunks.push(data.responseData.translatedText || chunk);
+    } catch (err) {
+      console.error("Translation error:", err);
+      translatedChunks.push(chunk);
+    }
+  }
+
+  return translatedChunks.join(" ");
 }
 
 
