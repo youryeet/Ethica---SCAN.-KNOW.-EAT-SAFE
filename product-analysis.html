@@ -382,6 +382,7 @@
       <canvas id="barcodeCanvas"></canvas>
       <div class="camera-controls">
         <button id="captureBtn" onclick="capturePhoto()">📸 Capture</button>
+        <button id="manualScanBtn" onclick="manualBarcodeDetect()" style="display:none; background:#2196F3;">🔍 Try Detect</button>
         <button onclick="closeCamera()" style="background:#e53e3e;">✖ Cancel</button>
       </div>
       <p id="barcodeResult" style="margin-top:10px; color:#4CAF50; font-weight:bold;"></p>
@@ -405,6 +406,8 @@
       // Update UI for photo capture mode
       document.getElementById('cameraTitle').textContent = 'Camera Capture';
       document.getElementById('captureBtn').style.display = 'inline-block';
+      document.getElementById('manualScanBtn').style.display = 'none';
+      document.getElementById('cameraContainer').classList.remove('barcode-mode');
       document.getElementById('barcodeResult').textContent = '';
       
       try {
@@ -454,6 +457,57 @@
       }, 'image/jpeg');
     }
 
+    // MANUAL BARCODE DETECTION
+    function manualBarcodeDetect() {
+      const video = document.getElementById('cameraFeed');
+      const canvas = document.getElementById('barcodeCanvas');
+      const ctx = canvas.getContext('2d');
+      const resultText = document.getElementById('barcodeResult');
+      
+      resultText.textContent = '🔍 Attempting detection...';
+      
+      if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        console.log('Manual scan - canvas size:', canvas.width, 'x', canvas.height);
+        
+        try {
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "attemptBoth",
+          });
+          
+          if (code && code.data) {
+            console.log('✅ Manual scan successful:', code.data);
+            resultText.textContent = `✅ Found: ${code.data}`;
+            resultText.style.color = '#4CAF50';
+            
+            if (barcodeInterval) {
+              clearInterval(barcodeInterval);
+              barcodeInterval = null;
+            }
+            
+            setTimeout(() => {
+              closeCamera();
+              fetchProductFromBarcode(code.data);
+            }, 1000);
+          } else {
+            resultText.textContent = '❌ No barcode detected. Try different angle or lighting.';
+            resultText.style.color = '#f44336';
+            console.log('Manual scan failed - no barcode found');
+          }
+        } catch (err) {
+          console.error('Manual scan error:', err);
+          resultText.textContent = '❌ Error: ' + err.message;
+        }
+      } else {
+        resultText.textContent = '⚠️ Camera not ready. Wait a moment and try again.';
+        console.log('Video not ready:', video.readyState, video.videoWidth);
+      }
+    }
+
     // BARCODE SCANNER
     async function openBarcodeScanner() {
       isBarcodeMode = true;
@@ -468,6 +522,8 @@
       // Update UI for barcode scanning mode
       document.getElementById('cameraTitle').textContent = 'Barcode Scanner';
       document.getElementById('captureBtn').style.display = 'none'; // Hide capture button
+      document.getElementById('manualScanBtn').style.display = 'inline-block'; // Show manual scan button
+      document.getElementById('cameraContainer').classList.add('barcode-mode'); // Show canvas
       
       if (!window.jsQR) {
         alert('Barcode scanner library not loaded. Please refresh the page.');
