@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ethica – SCAN. KNOW. EAT SAFE. </title>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   
   <style>
@@ -18,25 +18,24 @@
       align-items: center;
       padding: 2rem;
       color: #333;
-  background: linear-gradient(135deg, #e8f5e9, #e0f7fa);
-  font-family: "Poppins", sans-serif;
-  color: #333;
-
+      background: linear-gradient(135deg, #e8f5e9, #e0f7fa);
+      font-family: "Poppins", sans-serif;
     }
-  #sustainabilityResult {
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  padding: 1.5rem;
-  margin-top: 1.5rem;
-  display: inline-block;
-}
 
-#sustainabilityText {
-  font-weight: 600;
-  margin-top: 12px;
-  font-size: 18px;
-}
+    #sustainabilityResult {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      display: inline-block;
+    }
+
+    #sustainabilityText {
+      font-weight: 600;
+      margin-top: 12px;
+      font-size: 18px;
+    }
 
     .app-container {
       background: white;
@@ -64,29 +63,42 @@
       margin-bottom: 1rem;
     }
 
-  input[type="file"] {
-  width: auto; 
-  padding: 0;
-  border: none;
-  background: none;
-  color: transparent; 
-  cursor: pointer;
-}
+    .scan-options {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
 
-input[type="file"]::file-selector-button {
-  padding: 10px 20px;
-  border: 2px solid #4f46e5;
-  border-radius: 8px;
-  background-color: #4f46e5;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
+    .scan-btn {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 0.75rem;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: 600;
+    }
 
-input[type="file"]::file-selector-button:hover {
-  background-color: #3730a3;
-}
+    .scan-btn:hover {
+      background-color: #3730a3;
+    }
+
+    .scan-btn.barcode {
+      background-color: #f59e0b;
+    }
+
+    .scan-btn.barcode:hover {
+      background-color: #d97706;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
     button {
       background-color: #4CAF50;
       color: white;
@@ -101,6 +113,45 @@ input[type="file"]::file-selector-button:hover {
 
     button:hover {
       background-color: #43A047;
+    }
+
+    #cameraModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #cameraModal.active {
+      display: flex;
+    }
+
+    .camera-container {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      max-width: 90%;
+      max-height: 90%;
+      overflow: auto;
+    }
+
+    #cameraFeed {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 0.5rem;
+    }
+
+    .camera-controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
     }
 
     #ocrText {
@@ -134,1964 +185,679 @@ input[type="file"]::file-selector-button:hover {
       color: #777;
       text-align: center;
     }
+
     .loader {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-  margin-top: 10px;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4CAF50;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-top: 10px;
+    }
 
-.result-card {
-  animation: fadeInUp 0.6s ease forwards;
-}
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-.result-card {
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  margin: 1.5rem auto;
-  width: 90%;
-  max-width: 450px;
-  text-align: center;
-  animation: fadeInUp 0.6s ease forwards;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+    .progress-container {
+      width: 100%;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 15px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
 
-.result-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
+    .progress-bar-fill {
+      height: 25px;
+      background: linear-gradient(90deg, #4CAF50, #66bb6a);
+      width: 0%;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-#allergenResult.green { background: #E8F5E9; color: #2E7D32; }
-#allergenResult.red { background: #FFEBEE; color: #C62828; }
+    .loading-message {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+    }
 
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-.bar-container { margin-top: 10px; display:flex; flex-direction:column; gap:0.9rem; }
-.bar { background:#f1f8f4; border-radius:10px; overflow:hidden; height:28px; position:relative; }
-.bar span { position:absolute; left:12px; top:4px; font-size:14px; color:#2f2f2f; font-weight:600; }
-.bar-fill { height:100%; width:0%; transition: width 900ms cubic-bezier(.2,.8,.2,1); border-radius:10px; }
+    .result-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin: 1.5rem auto;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      animation: fadeInUp 0.6s ease forwards;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-/* color picks */
-#co2Bar { background: linear-gradient(90deg,#66bb6a,#43a047); }
-#waterBar { background: linear-gradient(90deg,#64b5f6,#1e88e5); }
-#animalBar { background: linear-gradient(90deg,#ffb74d,#fb8c00); }
+    .result-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
 
-/* chart card look */
-.chart-card { background:white; border-radius:12px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); margin-top:12px; }
+    #allergenResult.green { 
+      background: #E8F5E9; 
+      color: #2E7D32; 
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+    
+    #allergenResult.yellow { 
+      background: #FFF9C4; 
+      color: #F57F17; 
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+    
+    #allergenResult.red { 
+      background: #FFEBEE; 
+      color: #C62828; 
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
 
-/* insight text */
-#insightText { background:#fffefc; border-radius:8px; padding:10px 12px; box-shadow:0 3px 10px rgba(0,0,0,0.03); }
+    .caution-details {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      text-align: left;
+      padding-left: 1rem;
+    }
 
+    .caution-details ul {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .caution-details li {
+      margin: 0.3rem 0;
+    }
+
+    .bar-container { margin-top: 10px; display:flex; flex-direction:column; gap:0.9rem; }
+    .bar { background:#f1f8f4; border-radius:10px; overflow:hidden; height:28px; position:relative; }
+    .bar span { position:absolute; left:12px; top:4px; font-size:14px; color:#2f2f2f; font-weight:600; z-index:1; }
+    .bar-fill { height:100%; width:0%; transition: width 900ms cubic-bezier(.2,.8,.2,1); border-radius:10px; }
+
+    #co2Bar { background: linear-gradient(90deg,#66bb6a,#43a047); }
+    #waterBar { background: linear-gradient(90deg,#64b5f6,#1e88e5); }
+    #animalBar { background: linear-gradient(90deg,#ffb74d,#fb8c00); }
+
+    .chart-card { background:white; border-radius:12px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); margin-top:12px; }
+
+    #insightText { background:#fffefc; border-radius:8px; padding:10px 12px; box-shadow:0 3px 10px rgba(0,0,0,0.03); }
+
+    canvas#barcodeCanvas { display: none; }
   </style>
 </head>
 <body>
 
   <div class="app-container">
-    <h1> Ethica</h1>
-    <img url=""
-    <h3> SCAN. KNOW. EAT SAFE – Scan Ingredients</h3>
-    <p>Select an ingredient label image to assess environmental and dietary impact.</p>
-    <input type="file" id="imageInput" accept="image/*">
-    <button onclick="runOCR()">Scan Ingredients</button>
+    <h1>Ethica</h1>
+    <h3>SCAN. KNOW. EAT SAFE – Scan Ingredients</h3>
+    <p>Choose how you want to scan your product:</p>
+    
+    <div class="scan-options">
+      <button class="scan-btn barcode" onclick="openBarcodeScanner()">📷 Scan Barcode</button>
+      <button class="scan-btn" onclick="openCamera()">📸 Take Photo</button>
+      <button class="scan-btn" onclick="document.getElementById('imageInput').click()">📁 Upload Image</button>
+    </div>
+
+    <input type="file" id="imageInput" accept="image/*" onchange="handleFileUpload()">
+
+    <!-- Progress Bar -->
+    <div id="progressContainer" class="progress-container" style="display: none;">
+      <div id="progressBar" class="progress-bar-fill">0%</div>
+    </div>
+    <div id="loadingMessage" class="loading-message" style="display: none;"></div>
 
     <p id="ocrText"></p>
-<div id="allergenResult" style="text-align:center; font-size:24px; font-weight:bold; margin-bottom:15px;"></div>
+    <div id="allergenResult" style="text-align:center; font-size:24px; font-weight:bold; margin-bottom:15px;"></div>
 
-    <div background-color="yellow" id="results"></div>
+    <div id="results"></div>
     <br>
 
-<div id="sustainabilityResult" class="result-card">
-  <h2>🌱 Sustainability Breakdown</h2>
+    <div id="sustainabilityResult" class="result-card">
+      <h2>🌱 Sustainability Breakdown</h2>
 
-  <!-- Animated bars (CO2 / Water / Animal) -->
-  <div class="bar-container" style="margin-top: 8px;">
-    <div class="bar">
-      <span>CO₂ Impact</span>
-      <div class="bar-fill" id="co2Bar"></div>
+      <div class="bar-container" style="margin-top: 8px;">
+        <div class="bar">
+          <span>CO₂ Impact</span>
+          <div class="bar-fill" id="co2Bar"></div>
+        </div>
+        <div class="bar">
+          <span>Water Usage</span>
+          <div class="bar-fill" id="waterBar"></div>
+        </div>
+        <div class="bar">
+          <span>Animal Impact</span>
+          <div class="bar-fill" id="animalBar"></div>
+        </div>
+      </div>
+
+      <div id="sustainabilityText" style="margin-top: 12px; font-weight: 700; font-size: 1.1rem;"></div>
+
+      <div class="chart-card" style="margin-top: 18px;">
+        <canvas id="comparisonChart" width="400" height="200"></canvas>
+      </div>
+
+      <div id="insightText" style="margin-top: 12px; font-size: 0.95rem; color: #333;"></div>
     </div>
-    <div class="bar">
-      <span>Water Usage</span>
-      <div class="bar-fill" id="waterBar"></div>
-    </div>
-    <div class="bar">
-      <span>Animal Impact</span>
-      <div class="bar-fill" id="animalBar"></div>
-    </div>
-  </div>
-
-  <!-- Overall numeric -->
-  <div id="sustainabilityText" style="margin-top: 12px; font-weight: 700; font-size: 1.1rem;"></div>
-
-  <!-- Comparison chart: Your Product vs Average product -->
-  <div class="chart-card" style="margin-top: 18px;">
-    <canvas id="comparisonChart" width="400" height="200"></canvas>
-  </div>
-
-  <!-- Short smart insight tips -->
-  <div id="insightText" style="margin-top: 12px; font-size: 0.95rem; color: #333;"></div>
-</div>
 
     <div class="footer">Guided by Ahimsa 💚</div>
   </div>
 
-  <script>
-    const ingredientData = {
-beef: { co2: 27.0, water: 15400, animalImpact: 10, weight: 150 },
-chicken: { co2: 6.9, water: 4325, animalImpact: 6, weight: 150 },
-pork: { co2: 12.1, water: 5988, animalImpact: 7, weight: 150 },
-lamb: { co2: 39.2, water: 10400, animalImpact: 9, weight: 150 },
-fish: { co2: 5.4, water: 5500, animalImpact: 5, weight: 150 },
-shrimp: { co2: 26.9, water: 11000, animalImpact: 8, weight: 100 },
-eggs: { co2: 4.5, water: 3265, animalImpact: 5, weight: 60 },
-cheese: { co2: 13.5, water: 5060, animalImpact: 6, weight: 30 },
-butter: { co2: 11.9, water: 5553, animalImpact: 6, weight: 10 },
-yogurt: { co2: 2.2, water: 1000, animalImpact: 3, weight: 150 },
-honey: { co2: 1.7, water: 2700, animalImpact: 3, weight: 20 },
-tofu: { co2: 2.0, water: 1800, animalImpact: 1, weight: 100 },
-tempeh: { co2: 1.9, water: 1700, animalImpact: 1, weight: 100 },
-lentils: { co2: 0.9, water: 4050, animalImpact: 1, weight: 100 },
-chickpeas: { co2: 1.1, water: 4177, animalImpact: 1, weight: 100 },
-blackBeans: { co2: 2.0, water: 4050, animalImpact: 1, weight: 100 },
-kidneyBeans: { co2: 2.2, water: 4100, animalImpact: 1, weight: 100 },
-peas: { co2: 0.9, water: 3570, animalImpact: 1, weight: 100 },
-quinoa: { co2: 1.6, water: 550, animalImpact: 1, weight: 100 },
-rice: { co2: 2.7, water: 2497, animalImpact: 1, weight: 100 },
-oats: { co2: 2.5, water: 2900, animalImpact: 1, weight: 100 },
-barley: { co2: 1.8, water: 1420, animalImpact: 1, weight: 100 },
-wheat: { co2: 1.4, water: 1827, animalImpact: 1, weight: 100 },
-corn: { co2: 1.7, water: 1222, animalImpact: 1, weight: 100 },
-sorghum: { co2: 1.2, water: 1500, animalImpact: 1, weight: 100 },
-rye: { co2: 1.3, water: 1600, animalImpact: 1, weight: 100 },
-potatoes: { co2: 0.5, water: 287, animalImpact: 1, weight: 100 },
-sweetPotato: { co2: 0.6, water: 400, animalImpact: 1, weight: 100 },
-cassava: { co2: 0.8, water: 250, animalImpact: 1, weight: 100 },
-tapioca: { co2: 1.0, water: 1100, animalImpact: 1, weight: 100 },
-carrots: { co2: 0.3, water: 130, animalImpact: 1, weight: 100 },
-onions: { co2: 0.3, water: 130, animalImpact: 1, weight: 100 },
-garlic: { co2: 1.2, water: 500, animalImpact: 1, weight: 10 },
-tomatoes: { co2: 1.1, water: 214, animalImpact: 1, weight: 100 },
-cucumber: { co2: 0.7, water: 350, animalImpact: 1, weight: 100 },
-lettuce: { co2: 0.3, water: 237, animalImpact: 1, weight: 100 },
-spinach: { co2: 0.4, water: 272, animalImpact: 1, weight: 100 },
-kale: { co2: 0.5, water: 200, animalImpact: 1, weight: 100 },
-broccoli: { co2: 0.9, water: 285, animalImpact: 1, weight: 100 },
-cauliflower: { co2: 0.8, water: 300, animalImpact: 1, weight: 100 },
-cabbage: { co2: 0.4, water: 237, animalImpact: 1, weight: 100 },
-mushroom: { co2: 1.5, water: 1800, animalImpact: 1, weight: 100 },
-bellPepper: { co2: 0.8, water: 250, animalImpact: 1, weight: 100 },
-zucchini: { co2: 0.6, water: 300, animalImpact: 1, weight: 100 },
-eggplant: { co2: 0.8, water: 362, animalImpact: 1, weight: 100 },
-avocado: { co2: 2.5, water: 2000, animalImpact: 1, weight: 100 },
-apple: { co2: 0.4, water: 822, animalImpact: 1, weight: 100 },
-banana: { co2: 0.9, water: 790, animalImpact: 1, weight: 100 },
-orange: { co2: 0.4, water: 560, animalImpact: 1, weight: 100 },
-grape: { co2: 1.6, water: 610, animalImpact: 1, weight: 100 },
-pineapple: { co2: 0.7, water: 255, animalImpact: 1, weight: 100 },
-mango: { co2: 1.1, water: 1800, animalImpact: 1, weight: 100 },
-papaya: { co2: 0.6, water: 500, animalImpact: 1, weight: 100 },
-coconut: { co2: 1.6, water: 2700, animalImpact: 1, weight: 100 },
-strawberry: { co2: 1.5, water: 282, animalImpact: 1, weight: 100 },
-blueberry: { co2: 1.8, water: 418, animalImpact: 1, weight: 100 },
-raspberry: { co2: 2.2, water: 470, animalImpact: 1, weight: 100 },
-watermelon: { co2: 0.4, water: 232, animalImpact: 1, weight: 100 },
-peanut: { co2: 2.4, water: 2782, animalImpact: 1, weight: 30 },
-almond: { co2: 2.3, water: 16000, animalImpact: 1, weight: 30 },
-cashew: { co2: 2.8, water: 14200, animalImpact: 1, weight: 30 },
-walnut: { co2: 2.5, water: 10000, animalImpact: 1, weight: 30 },
-pistachio: { co2: 1.9, water: 5450, animalImpact: 1, weight: 30 },
-hazelnut: { co2: 2.1, water: 5000, animalImpact: 1, weight: 30 },
-flaxseed: { co2: 0.9, water: 3000, animalImpact: 1, weight: 30 },
-chia: { co2: 1.0, water: 2500, animalImpact: 1, weight: 30 },
-sunflowerOil: { co2: 3.3, water: 2100, animalImpact: 1, weight: 10 },
-oliveOil: { co2: 5.1, water: 1400, animalImpact: 1, weight: 10 },
-canolaOil: { co2: 3.7, water: 2300, animalImpact: 1, weight: 10 },
-palmOil: { co2: 8.5, water: 5000, animalImpact: 5, weight: 10 },
-sugar: { co2: 3.0, water: 1782, animalImpact: 1, weight: 10 },
-cocoa: { co2: 19.0, water: 17000, animalImpact: 2, weight: 10 },
-coffee: { co2: 17.0, water: 14000, animalImpact: 2, weight: 10 },
-tea: { co2: 1.9, water: 9000, animalImpact: 1, weight: 10 },
-bread: { co2: 1.6, water: 1600, animalImpact: 1, weight: 50 },
-pasta: { co2: 1.9, water: 1849, animalImpact: 1, weight: 100 },
-cereal: { co2: 2.5, water: 2500, animalImpact: 1, weight: 50 },
-chocolate: { co2: 19.0, water: 17196, animalImpact: 2, weight: 10 },
-soda: { co2: 0.5, water: 170, animalImpact: 1, weight: 330 },
-beer: { co2: 0.9, water: 300, animalImpact: 1, weight: 330 },
-wine: { co2: 1.6, water: 600, animalImpact: 1, weight: 150 },  tofuBurger: { co2: 2.3, water: 2000, animalImpact: 1, weight: 150 },
-  veggieBurger: { co2: 2.9, water: 2100, animalImpact: 1, weight: 150 },
-  iceCream: { co2: 3.2, water: 1000, animalImpact: 3, weight: 100 },
-  margarine: { co2: 2.3, water: 2000, animalImpact: 2, weight: 10 },
-  mayonnaise: { co2: 4.1, water: 3000, animalImpact: 2, weight: 15 },
-  ketchup: { co2: 1.2, water: 200, animalImpact: 1, weight: 20 },
-  mustard: { co2: 0.9, water: 200, animalImpact: 1, weight: 10 },
-  soySauce: { co2: 1.8, water: 1800, animalImpact: 1, weight: 10 },
-  vinegar: { co2: 0.4, water: 100, animalImpact: 1, weight: 10 },
-  salt: { co2: 0.1, water: 10, animalImpact: 1, weight: 5 },
-  pepper: { co2: 1.2, water: 700, animalImpact: 1, weight: 2 },
-  turkey: { co2: 7.8, water: 5200, animalImpact: 6, weight: 150 },
-  duck: { co2: 9.8, water: 5500, animalImpact: 6, weight: 150 },
-  crab: { co2: 6.5, water: 7200, animalImpact: 6, weight: 120 },
-  lobster: { co2: 11.0, water: 8500, animalImpact: 7, weight: 120 },
-  scallops: { co2: 4.0, water: 4000, animalImpact: 5, weight: 100 },
-  clams: { co2: 2.9, water: 3200, animalImpact: 4, weight: 100 },
-  squid: { co2: 3.6, water: 3500, animalImpact: 4, weight: 100 },
-  salmon: { co2: 5.1, water: 4500, animalImpact: 5, weight: 150 },
-  tuna: { co2: 6.1, water: 5500, animalImpact: 5, weight: 150 },
-  anchovy: { co2: 3.8, water: 3000, animalImpact: 5, weight: 50 },
-  sardine: { co2: 3.0, water: 2900, animalImpact: 5, weight: 50 },
-  bacon: { co2: 12.0, water: 6000, animalImpact: 7, weight: 30 },
-  sausage: { co2: 8.2, water: 4200, animalImpact: 6, weight: 50 },
-  ham: { co2: 6.0, water: 3000, animalImpact: 6, weight: 50 },
-  venison: { co2: 21.0, water: 9000, animalImpact: 8, weight: 150 },
-  goat: { co2: 23.0, water: 8700, animalImpact: 8, weight: 150 },
-  rabbit: { co2: 5.2, water: 4800, animalImpact: 5, weight: 150 },
-  duckEgg: { co2: 5.2, water: 3300, animalImpact: 5, weight: 70 },
-  cream: { co2: 5.0, water: 1800, animalImpact: 4, weight: 30 },
-  sourCream: { co2: 2.8, water: 1500, animalImpact: 3, weight: 30 },
-  ricotta: { co2: 8.0, water: 3500, animalImpact: 4, weight: 50 },
-  feta: { co2: 8.4, water: 3000, animalImpact: 4, weight: 30 },
-  parmesan: { co2: 13.6, water: 5000, animalImpact: 6, weight: 20 },
-  mozzarella: { co2: 8.8, water: 3600, animalImpact: 4, weight: 30 },
-  creamCheese: { co2: 5.1, water: 2500, animalImpact: 4, weight: 30 },
-  cottageCheese: { co2: 2.6, water: 1300, animalImpact: 3, weight: 100 },
-  sourdough: { co2: 1.6, water: 1600, animalImpact: 1, weight: 50 },
-  bagel: { co2: 1.8, water: 1700, animalImpact: 1, weight: 70 },
-  croissant: { co2: 2.2, water: 1800, animalImpact: 2, weight: 60 },
-  donut: { co2: 2.5, water: 1900, animalImpact: 2, weight: 50 },
-  muffin: { co2: 2.4, water: 1800, animalImpact: 2, weight: 80 },
-  pancake: { co2: 2.0, water: 1600, animalImpact: 2, weight: 80 },
-  waffle: { co2: 2.2, water: 1600, animalImpact: 2, weight: 80 },
-  cookie: { co2: 3.1, water: 2000, animalImpact: 2, weight: 30 },
-  brownie: { co2: 3.8, water: 2200, animalImpact: 2, weight: 60 },
-  cake: { co2: 3.4, water: 2100, animalImpact: 2, weight: 100 },
-  pie: { co2: 3.5, water: 2000, animalImpact: 2, weight: 100 },
-  tortilla: { co2: 1.6, water: 1500, animalImpact: 1, weight: 50 },
-  pita: { co2: 1.5, water: 1400, animalImpact: 1, weight: 50 },
-  naan: { co2: 1.7, water: 1600, animalImpact: 1, weight: 70 },
-  basmatiRice: { co2: 2.8, water: 2500, animalImpact: 1, weight: 100 },
-  jasmineRice: { co2: 2.9, water: 2600, animalImpact: 1, weight: 100 },
-  brownRice: { co2: 2.5, water: 2400, animalImpact: 1, weight: 100 },
-  whiteRice: { co2: 2.7, water: 2497, animalImpact: 1, weight: 100 },
-  oatsPorridge: { co2: 2.3, water: 2800, animalImpact: 1, weight: 100 },
-  granola: { co2: 2.6, water: 2600, animalImpact: 1, weight: 50 },
-  hummus: { co2: 1.4, water: 2000, animalImpact: 1, weight: 50 },
-  falafel: { co2: 2.0, water: 2200, animalImpact: 1, weight: 80 },
-  seitan: { co2: 2.1, water: 1900, animalImpact: 1, weight: 100 },
-  miso: { co2: 1.8, water: 1800, animalImpact: 1, weight: 30 },
-  kimchi: { co2: 0.6, water: 250, animalImpact: 1, weight: 50 },
-  sauerkraut: { co2: 0.7, water: 300, animalImpact: 1, weight: 50 },
-  pickles: { co2: 0.5, water: 150, animalImpact: 1, weight: 30 },
-  jam: { co2: 1.4, water: 2000, animalImpact: 1, weight: 20 },
-  peanutButter: { co2: 2.5, water: 3000, animalImpact: 1, weight: 20 },
-  almondButter: { co2: 2.6, water: 4000, animalImpact: 1, weight: 20 },
-  hazelnutSpread: { co2: 3.2, water: 3500, animalImpact: 1, weight: 20 },
-  syrup: { co2: 2.0, water: 3000, animalImpact: 1, weight: 10 },
-  molasses: { co2: 1.8, water: 2500, animalImpact: 1, weight: 10 },
-  vinegarBalsamic: { co2: 0.5, water: 100, animalImpact: 1, weight: 10 },
-  chili: { co2: 1.0, water: 400, animalImpact: 1, weight: 10 },
-  ginger: { co2: 1.2, water: 500, animalImpact: 1, weight: 10 },
-  turmeric: { co2: 1.3, water: 450, animalImpact: 1, weight: 10 },
-  cinnamon: { co2: 1.8, water: 600, animalImpact: 1, weight: 5 },
-  basil: { co2: 0.7, water: 200, animalImpact: 1, weight: 5 },
-  parsley: { co2: 0.6, water: 180, animalImpact: 1, weight: 5 },
-  cilantro: { co2: 0.6, water: 180, animalImpact: 1, weight: 5 },
-  thyme: { co2: 0.7, water: 200, animalImpact: 1, weight: 5 },
-  rosemary: { co2: 0.8, water: 200, animalImpact: 1, weight: 5 },
-  oregano: { co2: 0.8, water: 200, animalImpact: 1, weight: 5 },
-  dill: { co2: 0.6, water: 150, animalImpact: 1, weight: 5 },
-  mint: { co2: 0.7, water: 150, animalImpact: 1, weight: 5 },
-"latte flakes (powdered)": { co2: 7.87, water: 3421, animalImpact: 0, weight: 20 },
-  "vinegar roasted (powdered)": { co2: 4.65, water: 2242, animalImpact: 2, weight: 10 },
-  "marinara oil": { co2: 4.76, water: 1201, animalImpact: 0, weight: 10 },
-  "cod roasted": { co2: 6.23, water: 5764, animalImpact: 7, weight: 100 },
-  "pistachio dried": { co2: 2.74, water: 9137, animalImpact: 1, weight: 200 },
-  "ketchup flakes": { co2: 3.13, water: 816, animalImpact: 2, weight: 100 },
-  "peanut butter oil": { co2: 11.03, water: 3642, animalImpact: 6, weight: 50 },
-  "walnut sliced": { co2: 3.18, water: 6996, animalImpact: 0, weight: 100 },
-  "bell pepper oil": { co2: 0.93, water: 284, animalImpact: 2, weight: 50 },
-  "haddock smoked": { co2: 6.55, water: 5783, animalImpact: 5, weight: 50 },
-  "spinach powder": { co2: 1.13, water: 413, animalImpact: 1, weight: 100 },
-  "cream grilled": { co2: 11.03, water: 4166, animalImpact: 5, weight: 70 },
-  "rabbit extract": { co2: 37.94, water: 13794, animalImpact: 9, weight: 100 },
-  "mayonnaise paste": { co2: 3.26, water: 1052, animalImpact: 1, weight: 20 },
-  "tuna sauce": { co2: 5.71, water: 4653, animalImpact: 3, weight: 70 },
-  "hot sauce": { co2: 4.02, water: 1312, animalImpact: 2, weight: 70 },
-  "cappuccino minced": { co2: 6.79, water: 3262, animalImpact: 2, weight: 70 },
-  "cookie sauce": { co2: 2.74, water: 1219, animalImpact: 2, weight: 50 },
-  "tuna chopped": { co2: 4.48, water: 4117, animalImpact: 5, weight: 100 },
-  "tortilla": { co2: 2.5, water: 1242, animalImpact: 3, weight: 70 },
-  "grape powder": { co2: 1.13, water: 580, animalImpact: 1, weight: 30 },
-  "lamb grilled": { co2: 36.29, water: 16867, animalImpact: 10, weight: 150 },
-  "cream salted": { co2: 9.13, water: 2472, animalImpact: 5, weight: 100 },
-  "coriander cured": { co2: 2.27, water: 800, animalImpact: 1, weight: 10 },
-  "jelly salted": { co2: 2.02, water: 860, animalImpact: 1, weight: 10 },
-  "kale dried": { co2: 0.92, water: 383, animalImpact: 2, weight: 30 },
-  "tahini sweetened": { co2: 6.35, water: 1290, animalImpact: 2, weight: 150 },
-  "bell pepper roasted": { co2: 1.06, water: 417, animalImpact: 1, weight: 20 },
-  "lentils sliced": { co2: 1.53, water: 1817, animalImpact: 1, weight: 30 },
-  "salt sauce": { co2: 2.35, water: 800, animalImpact: 3, weight: 200 },
-  "barbecue sauce flakes": { co2: 3.86, water: 998, animalImpact: 3, weight: 50 },
-  "tilapia roasted": { co2: 5.6, water: 4705, animalImpact: 6, weight: 10 },
-  "tilapia sliced (powdered)": { co2: 4.41, water: 5806, animalImpact: 5, weight: 200 },
-  "tuna oil": { co2: 5.28, water: 5661, animalImpact: 5, weight: 10 },
-  "celery powder": { co2: 0.67, water: 426, animalImpact: 1, weight: 20 },
-  "clams dried": { co2: 5.94, water: 1867, animalImpact: 1, weight: 20 },
-  "hummus extract": { co2: 6.36, water: 2040, animalImpact: 1, weight: 100 },
-  "strawberry oil": { co2: 1.01, water: 562, animalImpact: 2, weight: 30 },
-  "tomato smoked": { co2: 1.0, water: 368, animalImpact: 0, weight: 20 },
-  "kidney beans salted": { co2: 1.71, water: 1911, animalImpact: 3, weight: 20 },
-  "pear chopped": { co2: 1.24, water: 2189, animalImpact: 0, weight: 10 },
-  "hot sauce powdered": { co2: 4.22, water: 1326, animalImpact: 2, weight: 70 },
-  "beef flakes": { co2: 53.42, water: 17022, animalImpact: 10, weight: 70 },
-  "cake grilled": { co2: 6.8, water: 2108, animalImpact: 2, weight: 150 },
-  "kiwi powder (powdered)": { co2: 1.23, water: 430, animalImpact: 1, weight: 150 },
-  "marinara": { co2: 3.74, water: 1288, animalImpact: 0, weight: 30 },
-  "relish powder": { co2: 2.78, water: 943, animalImpact: 2, weight: 10 },
-  "olive oil oil": { co2: 5.46, water: 1360, animalImpact: 0, weight: 150 },
-  "whiskey paste": { co2: 8.06, water: 3356, animalImpact: 0, weight: 150 },
-  "sorghum sauce": { co2: 2.28, water: 1543, animalImpact: 3, weight: 50 },
-  "raspberry sauce": { co2: 1.48, water: 752, animalImpact: 1, weight: 200 },
-  "eggplant powdered": { co2: 4.59, water: 3513, animalImpact: 4, weight: 50 },
-  "molasses minced": { co2: 2.47, water: 2062, animalImpact: 0, weight: 100 },
-  "quinoa flakes": { co2: 2.86, water: 1962, animalImpact: 2, weight: 70 },
-  "millet flakes": { co2: 5.11, water: 2579, animalImpact: 0, weight: 20 },
-  "sugar sweetened": { co2: 2.34, water: 2170, animalImpact: 1, weight: 50 },
-  "sunflower oil roasted": { co2: 4.66, water: 1269, animalImpact: 0, weight: 70 },
-  "cake powdered": { co2: 7.61, water: 1715, animalImpact: 3, weight: 30 },
-  "anchovy roasted": { co2: 4.92, water: 5528, animalImpact: 6, weight: 150 },
-  "barbecue sauce": { co2: 3.52, water: 1086, animalImpact: 3, weight: 100 },
-  "onion powder smoked": { co2: 1.04, water: 488, animalImpact: 2, weight: 30 },
-  "edamame powdered": { co2: 1.27, water: 1757, animalImpact: 0, weight: 50 },
-  "carrot extract": { co2: 1.03, water: 419, animalImpact: 2, weight: 20 },
-  "cardamom roasted": { co2: 1.96, water: 573, animalImpact: 0, weight: 150 },
-  "pizza sliced": { co2: 5.95, water: 1964, animalImpact: 2, weight: 20 },
-  "salt extract": { co2: 1.49, water: 986, animalImpact: 1, weight: 10 },
-  "pesto extract": { co2: 3.17, water: 1073, animalImpact: 0, weight: 100 },
-  "turmeric unsweetened": { co2: 2.08, water: 931, animalImpact: 0, weight: 200 },
-  "cod grilled": { co2: 6.02, water: 2777, animalImpact: 5, weight: 200 },
-  "gin extract": { co2: 10.05, water: 3435, animalImpact: 0, weight: 70 },
-  "broccoli minced": { co2: 1.08, water: 422, animalImpact: 1, weight: 50 },
-  "chickpeas roasted": { co2: 1.59, water: 1600, animalImpact: 1, weight: 50 },
-  "chocolate sliced": { co2: 6.4, water: 2533, animalImpact: 1, weight: 150 },
-  "sourdough": { co2: 4.8, water: 1880, animalImpact: 3, weight: 150 },
-  "ketchup salted": { co2: 2.28, water: 689, animalImpact: 1, weight: 150 },
-  "cauliflower sliced": { co2: 1.17, water: 496, animalImpact: 0, weight: 10 },
-  "honey sweetened": { co2: 2.42, water: 1887, animalImpact: 2, weight: 10 },
-  "strawberry sliced": { co2: 1.35, water: 495, animalImpact: 1, weight: 150 },
-  "potato roasted": { co2: 1.03, water: 407, animalImpact: 0, weight: 100 },
-  "ice cream dried": { co2: 8.41, water: 2821, animalImpact: 5, weight: 50 },
-  "cheese": { co2: 10.12, water: 4290, animalImpact: 8, weight: 200 },
-  "papaya chopped": { co2: 1.49, water: 444, animalImpact: 0, weight: 20 },
-  "haddock powdered": { co2: 6.77, water: 4625, animalImpact: 4, weight: 150 },
-  "milk dried": { co2: 6.61, water: 3753, animalImpact: 5, weight: 70 },
-  "apple cider vinegar flakes": { co2: 1.15, water: 586, animalImpact: 0, weight: 20 },
-  "cake minced (powdered)": { co2: 5.73, water: 1593, animalImpact: 3, weight: 150 },
-  "canola oil smoked": { co2: 3.88, water: 1692, animalImpact: 2, weight: 200 },
-  "onion powder roasted": { co2: 0.97, water: 341, animalImpact: 1, weight: 50 },
-  "peanut concentrate": { co2: 1.51, water: 2446, animalImpact: 0, weight: 10 },
-  "pizza minced": { co2: 5.44, water: 2168, animalImpact: 4, weight: 100 },
-  "potato unsweetened": { co2: 1.0, water: 411, animalImpact: 1, weight: 150 },
-  "tortilla salted": { co2: 2.45, water: 1789, animalImpact: 0, weight: 200 },
-  "cinnamon": { co2: 2.08, water: 1041, animalImpact: 1, weight: 200 },
-  "hot sauce cured": { co2: 3.56, water: 1252, animalImpact: 1, weight: 100 },
-  "cardamom concentrate": { co2: 2.06, water: 1053, animalImpact: 0, weight: 30 },
-  "anchovy oil": { co2: 7.36, water: 4300, animalImpact: 6, weight: 70 },
-  "walnut oil": { co2: 2.76, water: 9041, animalImpact: 1, weight: 10 },
-  "tempeh salted": { co2: 1.39, water: 2535, animalImpact: 1, weight: 200 },
-  "pistachio": { co2: 2.52, water: 8329, animalImpact: 1, weight: 200 },
-  "beef dried": { co2: 52.23, water: 18777, animalImpact: 10, weight: 10 },
-  "salmon paste": { co2: 6.36, water: 4380, animalImpact: 5, weight: 150 },
-  "beer unsweetened": { co2: 9.53, water: 3111, animalImpact: 1, weight: 200 },
-  "turmeric powdered": { co2: 2.26, water: 791, animalImpact: 0, weight: 20 },
-  "butter oil": { co2: 8.58, water: 3952, animalImpact: 6, weight: 20 },
-  "cod": { co2: 5.62, water: 3558, animalImpact: 6, weight: 70 },
-  "cardamom dried": { co2: 2.05, water: 1050, animalImpact: 0, weight: 50 },
-  "salt flakes": { co2: 1.61, water: 520, animalImpact: 1, weight: 30 },
-  "garlic unsweetened": { co2: 0.95, water: 340, animalImpact: 1, weight: 20 },
-  "onion powder powdered": { co2: 1.17, water: 366, animalImpact: 1, weight: 10 },
-  "paprika minced": { co2: 2.0, water: 913, animalImpact: 1, weight: 10 },
-  "raspberry sweetened (powdered)": { co2: 1.21, water: 464, animalImpact: 0, weight: 30 },
-  "jam roasted": { co2: 4.37, water: 1825, animalImpact: 2, weight: 100 },
-  "coffee minced": { co2: 8.56, water: 3217, animalImpact: 0, weight: 150 },
-  "barbecue sauce powder": { co2: 3.28, water: 930, animalImpact: 2, weight: 150 },
-  "donut": { co2: 5.1, water: 1890, animalImpact: 2, weight: 200 },
-  "gin smoked": { co2: 9.05, water: 3217, animalImpact: 1, weight: 70 },
-  "coriander grilled": { co2: 2.41, water: 763, animalImpact: 1, weight: 10 },
-  "hot sauce roasted": { co2: 3.26, water: 1441, animalImpact: 1, weight: 200 },
-  "pork paste": { co2: 48.14, water: 11500, animalImpact: 10, weight: 200 },
-  "pear smoked": { co2: 1.92, water: 1327, animalImpact: 3, weight: 30 },
-  "black beans concentrate": { co2: 1.63, water: 1711, animalImpact: 1, weight: 10 },
-  "sweet potato powdered": { co2: 0.89, water: 297, animalImpact: 0, weight: 30 },
-  "cinnamon salted": { co2: 1.75, water: 1035, animalImpact: 0, weight: 50 },
-  "grape sweetened": { co2: 1.49, water: 676, animalImpact: 0, weight: 100 },
-  "bagel sliced": { co2: 2.14, water: 1364, animalImpact: 2, weight: 10 },
-  "lamb cured": { co2: 48.95, water: 14320, animalImpact: 10, weight: 200 },
-  "walnut cured": { co2: 3.25, water: 8085, animalImpact: 3, weight: 20 },
-  "bread concentrate": { co2: 1.78, water: 1795, animalImpact: 0, weight: 100 },
-  "teriyaki sauce sliced": { co2: 2.34, water: 701, animalImpact: 0, weight: 20 },
-  "orange powdered": { co2: 1.22, water: 597, animalImpact: 0, weight: 20 },
-  "espresso flakes": { co2: 7.11, water: 1782, animalImpact: 2, weight: 70 },
-  "olive oil chopped": { co2: 5.38, water: 1511, animalImpact: 2, weight: 30 },
-  "shrimp sauce": { co2: 6.86, water: 3592, animalImpact: 5, weight: 30 },
-  "banana smoked": { co2: 1.6, water: 427, animalImpact: 1, weight: 200 },
-  "cassava salted": { co2: 1.74, water: 852, animalImpact: 0, weight: 150 },
-  "pineapple smoked": { co2: 1.07, water: 637, animalImpact: 2, weight: 200 },
-  "hazelnut extract": { co2: 2.76, water: 9038, animalImpact: 1, weight: 150 },
-  "kiwi": { co2: 1.16, water: 522, animalImpact: 0, weight: 10 },
-  "beer grilled": { co2: 9.7, water: 2405, animalImpact: 0, weight: 50 },
-  "espresso oil": { co2: 6.34, water: 1289, animalImpact: 0, weight: 30 },
-  "gin flakes": { co2: 7.37, water: 2589, animalImpact: 0, weight: 30 },
-  "almond powdered": { co2: 3.22, water: 7076, animalImpact: 1, weight: 100 },
-  "soy sauce cured": { co2: 1.58, water: 1730, animalImpact: 2, weight: 70 },
-  "cauliflower flakes": { co2: 0.85, water: 519, animalImpact: 2, weight: 50 },
-  "maple syrup salted": { co2: 2.01, water: 1741, animalImpact: 0, weight: 70 },
-  "jam sliced": { co2: 5.77, water: 2178, animalImpact: 2, weight: 50 },
-  "bread": { co2: 2.81, water: 1875, animalImpact: 0, weight: 200 },
-  "onion roasted": { co2: 0.86, water: 421, animalImpact: 1, weight: 200 },
-  "ketchup paste": { co2: 2.24, water: 1353, animalImpact: 1, weight: 30 },
-  "cocoa flakes": { co2: 6.59, water: 1939, animalImpact: 0, weight: 70 },
-  "buckwheat chopped": { co2: 2.24, water: 2099, animalImpact: 0, weight: 100 },
-  "relish chopped": { co2: 3.96, water: 914, animalImpact: 4, weight: 200 },
-  "almond oil": { co2: 2.92, water: 7809, animalImpact: 1, weight: 30 },
-  "alfredo oil": { co2: 4.45, water: 1519, animalImpact: 0, weight: 50 },
-  "banana minced": { co2: 1.26, water: 443, animalImpact: 1, weight: 30 },
-  "mustard concentrate": { co2: 4.28, water: 1309, animalImpact: 2, weight: 30 },
-  "barley chopped": { co2: 2.53, water: 2352, animalImpact: 1, weight: 150 },
-  "pancake flakes": { co2: 6.26, water: 1313, animalImpact: 2, weight: 20 },
-  "nutmeg cured": { co2: 1.64, water: 629, animalImpact: 2, weight: 70 },
-  "ginger": { co2: 7.05, water: 2397, animalImpact: 0, weight: 20 },
-  "tortilla smoked": { co2: 2.95, water: 2266, animalImpact: 2, weight: 100 },
-  "avocado oil unsweetened": { co2: 5.24, water: 1108, animalImpact: 1, weight: 20 },
-  "beef salted": { co2: 51.79, water: 18209, animalImpact: 10, weight: 200 },
-  "molasses roasted": { co2: 2.27, water: 1680, animalImpact: 2, weight: 70 },
-  "coconut oil paste": { co2: 1.12, water: 608, animalImpact: 2, weight: 100 },
-  "goat salted": { co2: 54.08, water: 18710, animalImpact: 10, weight: 20 },
-  "tea chopped": { co2: 9.17, water: 2772, animalImpact: 0, weight: 70 },
-  "apple cider vinegar powdered": { co2: 1.17, water: 526, animalImpact: 1, weight: 200 },
-  "ice cream flakes": { co2: 9.3, water: 3380, animalImpact: 6, weight: 150 },
-  "marinara unsweetened": { co2: 3.32, water: 971, animalImpact: 1, weight: 70 },
-  "quinoa sauce": { co2: 2.57, water: 1100, animalImpact: 1, weight: 30 },
-  "alfredo sliced": { co2: 3.23, water: 969, animalImpact: 0, weight: 20 },
-  "soy sauce oil": { co2: 1.37, water: 2067, animalImpact: 1, weight: 20 },
-  "tempeh paste": { co2: 1.68, water: 1557, animalImpact: 0, weight: 70 },
-  "turmeric roasted": { co2: 1.78, water: 845, animalImpact: 1, weight: 150 },
-  "macadamia powdered": { co2: 2.78, water: 6368, animalImpact: 0, weight: 70 },
-  "soy extract": { co2: 1.48, water: 1970, animalImpact: 1, weight: 30 },
-  "papaya powdered": { co2: 1.32, water: 798, animalImpact: 1, weight: 30 },
-  "goat sliced": { co2: 51.2, water: 18807, animalImpact: 10, weight: 150 },
-  "amaranth roasted (powdered)": { co2: 5.27, water: 2700, animalImpact: 1, weight: 150 },
-  "tahini sliced": { co2: 5.61, water: 2097, animalImpact: 3, weight: 200 },
-  "canola oil dried": { co2: 5.09, water: 1752, animalImpact: 2, weight: 150 },
-  "pancake dried": { co2: 5.7, water: 2338, animalImpact: 2, weight: 20 },
-  "eggplant chopped": { co2: 5.39, water: 3693, animalImpact: 3, weight: 50 },
-  "pistachio paste": { co2: 3.12, water: 8817, animalImpact: 1, weight: 200 },
-  "garlic powder sweetened": { co2: 0.94, water: 227, animalImpact: 2, weight: 100 },
-  "gin minced": { co2: 9.18, water: 3269, animalImpact: 0, weight: 10 },
-  "bell pepper cured": { co2: 1.11, water: 378, animalImpact: 1, weight: 100 },
-  "cassava dried": { co2: 6.39, water: 1975, animalImpact: 1, weight: 10 },
-  "nutmeg sweetened": { co2: 1.84, water: 721, animalImpact: 2, weight: 30 },
-  "lentils smoked": { co2: 1.67, water: 1782, animalImpact: 1, weight: 30 },
-  "amaranth extract": { co2: 4.96, water: 2486, animalImpact: 2, weight: 30 },
-  "sunflower oil chopped": { co2: 4.02, water: 1836, animalImpact: 1, weight: 100 },
-  "chickpeas minced": { co2: 1.43, water: 1857, animalImpact: 0, weight: 30 },
-  "broccoli dried": { co2: 1.09, water: 457, animalImpact: 3, weight: 150 },
-  "goat unsweetened": { co2: 47.66, water: 18307, animalImpact: 10, weight: 100 },
-  "salt cured": { co2: 1.88, water: 876, animalImpact: 2, weight: 200 },
-  "anchovy extract": { co2: 8.13, water: 4923, animalImpact: 6, weight: 20 },
-  "cake salted": { co2: 2.06, water: 770, animalImpact: 0, weight: 30 },
-  "balsamic vinegar sliced": { co2: 7.31, water: 2258, animalImpact: 3, weight: 30 },
-  "coriander powder": { co2: 1.9, water: 694, animalImpact: 0, weight: 200 },
-  "banana salted": { co2: 1.25, water: 805, animalImpact: 1, weight: 50 },
-  "palm oil sweetened": { co2: 4.41, water: 1558, animalImpact: 0, weight: 30 },
-  "cheese unsweetened": { co2: 11.24, water: 3499, animalImpact: 7, weight: 100 },
-  "hot sauce flakes": { co2: 2.77, water: 989, animalImpact: 2, weight: 200 },
-  "donut paste": { co2: 6.27, water: 2736, animalImpact: 3, weight: 200 },
-  "eggplant": { co2: 4.42, water: 3575, animalImpact: 5, weight: 50 },
-  "quinoa minced": { co2: 2.6, water: 2308, animalImpact: 0, weight: 30 },
-  "rabbit powder": { co2: 55.56, water: 10939, animalImpact: 10, weight: 200 },
-  "vodka": { co2: 9.44, water: 3415, animalImpact: 0, weight: 30 },
-  "barbecue sauce unsweetened": { co2: 3.28, water: 1106, animalImpact: 1, weight: 150 },
-  "latte unsweetened": { co2: 8.36, water: 3998, animalImpact: 1, weight: 10 },
-  "cider cured": { co2: 7.8, water: 2511, animalImpact: 1, weight: 150 },
-  "relish cured": { co2: 3.0, water: 959, animalImpact: 1, weight: 200 },
-  "soy sliced": { co2: 1.5, water: 2072, animalImpact: 1, weight: 20 },
-  "almond butter minced": { co2: 8.66, water: 3118, animalImpact: 7, weight: 30 },
-  "garlic powder grilled": { co2: 1.02, water: 373, animalImpact: 1, weight: 70 },
-  "cheese powder": { co2: 8.36, water: 3959, animalImpact: 5, weight: 70 },
-  "donut sliced": { co2: 5.34, water: 1918, animalImpact: 2, weight: 100 },
-  "tofu minced": { co2: 1.35, water: 2130, animalImpact: 0, weight: 150 },
-  "coriander sliced": { co2: 2.18, water: 1026, animalImpact: 0, weight: 70 },
-  "edamame roasted": { co2: 1.8, water: 1405, animalImpact: 0, weight: 70 },
-  "lettuce flakes": { co2: 0.93, water: 341, animalImpact: 0, weight: 200 },
-  "eggplant smoked (powdered)": { co2: 4.52, water: 3608, animalImpact: 4, weight: 150 },
-  "kiwi powder": { co2: 1.09, water: 513, animalImpact: 1, weight: 10 },
-  "turkey unsweetened": { co2: 5.5, water: 4067, animalImpact: 6, weight: 50 },
-  "hummus powder": { co2: 5.05, water: 1119, animalImpact: 1, weight: 30 },
-  "soy sauce chopped": { co2: 1.78, water: 1821, animalImpact: 0, weight: 20 },
-  "brown sugar salted": { co2: 2.07, water: 1245, animalImpact: 1, weight: 200 },
-  "cheese flakes": { co2: 12.01, water: 3885, animalImpact: 6, weight: 200 },
-  "peanut minced": { co2: 1.43, water: 1510, animalImpact: 1, weight: 30 },
-  "latte sauce": { co2: 8.98, water: 2695, animalImpact: 0, weight: 50 },
-  "sorghum chopped": { co2: 2.04, water: 2529, animalImpact: 0, weight: 20 },
-  "chickpeas powdered": { co2: 1.4, water: 1905, animalImpact: 0, weight: 150 },
-  "coffee sweetened": { co2: 9.69, water: 2851, animalImpact: 0, weight: 100 },
-  "lamb salted": { co2: 53.5, water: 18238, animalImpact: 10, weight: 150 },
-  "cookie powder": { co2: 5.24, water: 1961, animalImpact: 3, weight: 50 },
-  "zucchini cured": { co2: 1.3, water: 434, animalImpact: 0, weight: 70 },
-  "lamb powdered": { co2: 58.94, water: 17378, animalImpact: 9, weight: 30 },
-  "rum unsweetened": { co2: 7.14, water: 3154, animalImpact: 0, weight: 10 },
-  "navy beans powder": { co2: 6.09, water: 1689, animalImpact: 2, weight: 10 },
-  "cracker salted": { co2: 2.38, water: 976, animalImpact: 1, weight: 150 },
-  "lentils sauce": { co2: 1.35, water: 2026, animalImpact: 0, weight: 100 },
-  "zucchini sliced": { co2: 0.92, water: 329, animalImpact: 2, weight: 100 },
-  "grape smoked": { co2: 1.11, water: 620, animalImpact: 3, weight: 150 },
-  "mango sauce": { co2: 1.34, water: 775, animalImpact: 0, weight: 50 },
-  "onion powder grilled": { co2: 0.93, water: 400, animalImpact: 0, weight: 50 },
-  "eggs sweetened": { co2: 5.52, water: 3910, animalImpact: 5, weight: 200 },
-  "cassava salted (powdered)": { co2: 2.13, water: 853, animalImpact: 1, weight: 150 },
-  "sunflower oil powder": { co2: 5.71, water: 1321, animalImpact: 1, weight: 70 },
-  "kidney beans sliced": { co2: 1.52, water: 1677, animalImpact: 3, weight: 20 },
-  "lamb flakes": { co2: 49.22, water: 15760, animalImpact: 9, weight: 100 },
-  "turkey oil": { co2: 6.75, water: 4649, animalImpact: 8, weight: 200 },
-  "muffin smoked": { co2: 6.34, water: 2171, animalImpact: 2, weight: 100 },
-  "haddock sliced": { co2: 5.95, water: 3742, animalImpact: 4, weight: 200 },
-  "alfredo powdered": { co2: 3.72, water: 1178, animalImpact: 1, weight: 20 },
-  "cocoa sweetened": { co2: 9.96, water: 2277, animalImpact: 0, weight: 70 },
-  "almond butter sweetened": { co2: 8.53, water: 4259, animalImpact: 6, weight: 150 },
-  "duck extract (powdered)": { co2: 7.48, water: 4361, animalImpact: 7, weight: 30 },
-  "tea oil": { co2: 5.08, water: 1605, animalImpact: 0, weight: 10 },
-  "rabbit cured": { co2: 44.98, water: 18937, animalImpact: 9, weight: 30 },
-  "ginger salted": { co2: 7.83, water: 2371, animalImpact: 1, weight: 70 },
-  "wine grilled": { co2: 8.03, water: 3766, animalImpact: 0, weight: 70 },
-  "cassava oil": { co2: 6.99, water: 1157, animalImpact: 1, weight: 70 },
-  "cassava flakes": { co2: 4.16, water: 1771, animalImpact: 1, weight: 30 },
-  "yam powder": { co2: 6.51, water: 1917, animalImpact: 1, weight: 200 },
-  "papaya grilled": { co2: 1.27, water: 515, animalImpact: 0, weight: 20 },
-  "vodka sweetened": { co2: 7.64, water: 4236, animalImpact: 1, weight: 50 },
-  "latte extract": { co2: 6.37, water: 3494, animalImpact: 1, weight: 10 },
-  "barbecue sauce sauce": { co2: 3.46, water: 1376, animalImpact: 0, weight: 200 },
-  "cheese powdered": { co2: 8.01, water: 2286, animalImpact: 7, weight: 10 },
-  "crab roasted": { co2: 6.63, water: 5408, animalImpact: 7, weight: 150 },
-  "pizza sauce": { co2: 4.0, water: 892, animalImpact: 1, weight: 20 },
-  "broccoli powdered": { co2: 0.99, water: 338, animalImpact: 0, weight: 30 },
-  "cake smoked": { co2: 6.29, water: 1665, animalImpact: 2, weight: 30 },
-  "barley minced": { co2: 1.96, water: 1387, animalImpact: 0, weight: 30 },
-  "wine sliced": { co2: 7.49, water: 2975, animalImpact: 0, weight: 30 },
-  "sourdough minced": { co2: 5.5, water: 2393, animalImpact: 2, weight: 200 },
-  "raspberry minced": { co2: 1.2, water: 582, animalImpact: 0, weight: 10 },
-  "pork smoked": { co2: 40.52, water: 12062, animalImpact: 10, weight: 70 },
-  "pork powdered": { co2: 53.43, water: 22409, animalImpact: 9, weight: 100 },
-  "cocoa salted": { co2: 8.18, water: 3049, animalImpact: 0, weight: 50 },
-  "mango unsweetened": { co2: 1.37, water: 664, animalImpact: 1, weight: 20 },
-  "lentils salted": { co2: 1.41, water: 2146, animalImpact: 2, weight: 30 },
-  "spinach cured": { co2: 0.9, water: 284, animalImpact: 0, weight: 200 },
-  "seitan smoked": { co2: 1.53, water: 1555, animalImpact: 2, weight: 200 },
-  "garlic": { co2: 1.1, water: 278, animalImpact: 1, weight: 100 },
-  "chickpeas salted": { co2: 1.47, water: 2138, animalImpact: 1, weight: 200 },
-  "buckwheat powdered": { co2: 2.58, water: 1323, animalImpact: 2, weight: 150 },
-  "coconut oil sliced": { co2: 1.16, water: 701, animalImpact: 1, weight: 20 },
-  "mustard paste": { co2: 2.84, water: 1102, animalImpact: 0, weight: 50 },
-  "wheat": { co2: 2.39, water: 1379, animalImpact: 1, weight: 150 },
-  "mango smoked": { co2: 1.13, water: 878, animalImpact: 1, weight: 150 },
-  "black beans flakes": { co2: 1.39, water: 1436, animalImpact: 1, weight: 10 },
-  "pear powder": { co2: 1.52, water: 2278, animalImpact: 1, weight: 70 },
-  "banana sweetened": { co2: 1.15, water: 453, animalImpact: 0, weight: 100 },
-  "waffle extract": { co2: 5.82, water: 2503, animalImpact: 1, weight: 30 },
-  "gin roasted": { co2: 6.93, water: 3527, animalImpact: 0, weight: 150 },
-  "pancake minced": { co2: 5.36, water: 2184, animalImpact: 3, weight: 50 },
-  "ice cream powdered": { co2: 11.71, water: 3980, animalImpact: 7, weight: 10 },
-  "marinara roasted": { co2: 2.77, water: 962, animalImpact: 1, weight: 20 },
-  "nutmeg chopped": { co2: 2.2, water: 783, animalImpact: 0, weight: 70 },
-  "sesame oil unsweetened": { co2: 5.34, water: 1361, animalImpact: 1, weight: 50 },
-  "sourdough oil": { co2: 3.8, water: 1125, animalImpact: 3, weight: 10 },
-  "cream oil": { co2: 14.37, water: 5353, animalImpact: 5, weight: 50 },
-  "maple syrup extract": { co2: 2.03, water: 1856, animalImpact: 0, weight: 100 },
-  "garlic concentrate": { co2: 1.12, water: 339, animalImpact: 2, weight: 100 },
-  "yogurt chopped": { co2: 7.73, water: 4841, animalImpact: 7, weight: 30 },
-  "oats concentrate": { co2: 1.98, water: 1678, animalImpact: 1, weight: 50 },
-  "avocado oil sweetened": { co2: 5.48, water: 1062, animalImpact: 1, weight: 100 },
-  "cappuccino grilled": { co2: 7.88, water: 2444, animalImpact: 1, weight: 30 },
-  "mustard powder": { co2: 3.44, water: 1041, animalImpact: 1, weight: 10 },
-  "rice roasted": { co2: 2.4, water: 1890, animalImpact: 1, weight: 200 },
-  "coconut oil powder": { co2: 1.3, water: 517, animalImpact: 0, weight: 200 },
-  "noodles (powdered)": { co2: 2.45, water: 1980, animalImpact: 0, weight: 70 },
-  "oats cured": { co2: 2.44, water: 1667, animalImpact: 0, weight: 30 },
-  "hazelnut flakes": { co2: 3.04, water: 10221, animalImpact: 1, weight: 150 },
-  "navy beans chopped": { co2: 6.84, water: 1711, animalImpact: 2, weight: 50 },
-  "tomato dried": { co2: 1.16, water: 294, animalImpact: 2, weight: 200 },
-  "seitan": { co2: 1.62, water: 2670, animalImpact: 2, weight: 100 },
-  "alfredo flakes": { co2: 3.28, water: 929, animalImpact: 2, weight: 200 },
-  "blackberry powder": { co2: 1.04, water: 561, animalImpact: 0, weight: 10 },
-  "lobster minced (powdered)": { co2: 6.13, water: 4984, animalImpact: 6, weight: 20 },
-  "tomato sauce": { co2: 0.75, water: 257, animalImpact: 0, weight: 100 },
-  "sugar paste": { co2: 1.95, water: 1664, animalImpact: 1, weight: 20 },
-  "cumin extract": { co2: 1.72, water: 652, animalImpact: 2, weight: 150 },
-  "spinach": { co2: 1.03, water: 314, animalImpact: 1, weight: 150 },
-  "paprika sauce": { co2: 2.38, water: 763, animalImpact: 1, weight: 70 },
-  "mango dried": { co2: 1.36, water: 756, animalImpact: 0, weight: 100 },
-  "canola oil flakes": { co2: 4.08, water: 1804, animalImpact: 1, weight: 70 },
-  "paprika smoked": { co2: 1.86, water: 794, animalImpact: 2, weight: 100 },
-  "sugar": { co2: 2.2, water: 1684, animalImpact: 1, weight: 50 },
-  "tahini cured": { co2: 5.64, water: 2148, animalImpact: 2, weight: 20 },
-  "tomato grilled": { co2: 1.17, water: 276, animalImpact: 3, weight: 200 },
-  "balsamic vinegar unsweetened": { co2: 6.6, water: 2212, animalImpact: 3, weight: 150 },
-  "kale smoked": { co2: 0.96, water: 463, animalImpact: 0, weight: 30 },
-  "tomato minced": { co2: 0.94, water: 313, animalImpact: 1, weight: 100 },
-  "yam grilled": { co2: 6.81, water: 2070, animalImpact: 1, weight: 70 },
-  "honey chopped": { co2: 1.63, water: 1611, animalImpact: 0, weight: 10 },
-  "garlic powder oil": { co2: 0.94, water: 368, animalImpact: 2, weight: 150 },
-  "cracker paste": { co2: 6.07, water: 2585, animalImpact: 2, weight: 20 },
-  "cinnamon unsweetened": { co2: 1.48, water: 645, animalImpact: 2, weight: 150 },
-  "canola oil salted": { co2: 5.31, water: 1426, animalImpact: 1, weight: 30 },
-  "wine powder": { co2: 9.77, water: 2469, animalImpact: 0, weight: 100 },
-  "paprika flakes (powdered)": { co2: 1.98, water: 991, animalImpact: 0, weight: 50 },
-  "cinnamon chopped": { co2: 1.95, water: 829, animalImpact: 0, weight: 30 },
-  "zucchini": { co2: 0.9, water: 572, animalImpact: 3, weight: 30 },
-  "yogurt cured": { co2: 11.45, water: 2756, animalImpact: 6, weight: 200 },
-  "cucumber dried": { co2: 1.03, water: 363, animalImpact: 2, weight: 30 },
-  "pear cured": { co2: 1.24, water: 2274, animalImpact: 2, weight: 200 },
-  "banana sliced": { co2: 1.3, water: 761, animalImpact: 0, weight: 50 },
-  "rice oil": { co2: 2.87, water: 2010, animalImpact: 0, weight: 20 },
-  "peanut butter flakes": { co2: 8.61, water: 3346, animalImpact: 6, weight: 200 },
-  "soy sauce minced": { co2: 1.6, water: 1592, animalImpact: 0, weight: 100 },
-  "bell pepper smoked": { co2: 1.09, water: 284, animalImpact: 1, weight: 20 },
-  "venison minced": { co2: 59.9, water: 14349, animalImpact: 10, weight: 30 },
-  "brownie sliced": { co2: 6.57, water: 2299, animalImpact: 3, weight: 30 },
-  "pesto sauce": { co2: 3.59, water: 1110, animalImpact: 2, weight: 200 },
-  "whiskey powder": { co2: 9.32, water: 2794, animalImpact: 0, weight: 200 },
-  "coffee grilled": { co2: 9.11, water: 3371, animalImpact: 0, weight: 20 },
-  "alfredo": { co2: 3.02, water: 1050, animalImpact: 1, weight: 200 },
-  "alfredo grilled": { co2: 3.37, water: 1074, animalImpact: 1, weight: 100 },
-  "coriander salted": { co2: 1.56, water: 918, animalImpact: 1, weight: 10 },
-  "nutmeg concentrate": { co2: 1.81, water: 870, animalImpact: 0, weight: 20 },
-  "orange oil": { co2: 1.06, water: 541, animalImpact: 1, weight: 30 },
-  "vodka paste": { co2: 6.35, water: 3421, animalImpact: 0, weight: 100 },
-  "teriyaki sauce concentrate": { co2: 3.61, water: 1484, animalImpact: 1, weight: 20 },
-  "venison roasted": { co2: 59.43, water: 21019, animalImpact: 10, weight: 30 },
-  "goat extract": { co2: 47.52, water: 17034, animalImpact: 10, weight: 30 },
-  "peanut butter concentrate": { co2: 8.75, water: 3303, animalImpact: 6, weight: 20 },
-  "corn syrup cured": { co2: 2.24, water: 1229, animalImpact: 0, weight: 10 },
-  "almond smoked": { co2: 3.15, water: 6986, animalImpact: 0, weight: 150 },
-  "eggs roasted": { co2: 4.34, water: 3218, animalImpact: 5, weight: 30 },
-  "tofu powder": { co2: 1.78, water: 2093, animalImpact: 0, weight: 20 },
-  "cod smoked": { co2: 6.95, water: 4451, animalImpact: 7, weight: 70 },
-  "cod concentrate": { co2: 5.95, water: 4261, animalImpact: 5, weight: 30 },
-  "tempeh sliced": { co2: 1.44, water: 1336, animalImpact: 1, weight: 20 },
-  "wheat oil": { co2: 2.57, water: 2192, animalImpact: 2, weight: 200 },
-  "maize": { co2: 2.96, water: 912, animalImpact: 1, weight: 20 },
-  "apple sliced": { co2: 1.24, water: 619, animalImpact: 1, weight: 100 },
-  "tomato paste": { co2: 1.12, water: 249, animalImpact: 0, weight: 20 },
-  "soy sauce sweetened (powdered)": { co2: 1.24, water: 1746, animalImpact: 0, weight: 50 },
-  "gin paste": { co2: 7.03, water: 2567, animalImpact: 0, weight: 30 },
-  "chicken sweetened": { co2: 9.19, water: 3932, animalImpact: 7, weight: 30 },
-  "mango concentrate": { co2: 1.2, water: 762, animalImpact: 1, weight: 10 },
-  "onion oil": { co2: 0.88, water: 267, animalImpact: 1, weight: 70 },
-  "tempeh extract": { co2: 1.7, water: 2306, animalImpact: 0, weight: 10 },
-  "canola oil minced": { co2: 4.49, water: 1749, animalImpact: 0, weight: 100 },
-  "relish sauce": { co2: 3.74, water: 903, animalImpact: 1, weight: 70 },
-  "eggs powder": { co2: 5.03, water: 3811, animalImpact: 5, weight: 70 },
-  "gin cured": { co2: 6.92, water: 3281, animalImpact: 0, weight: 30 },
-  "potato dried": { co2: 0.86, water: 346, animalImpact: 1, weight: 30 },
-  "ketchup minced": { co2: 2.43, water: 716, animalImpact: 1, weight: 150 },
-  "cumin flakes": { co2: 1.9, water: 693, animalImpact: 0, weight: 30 },
-  "pork": { co2: 48.65, water: 13288, animalImpact: 10, weight: 70 },
-  "tilapia chopped": { co2: 5.68, water: 4638, animalImpact: 4, weight: 20 },
-  "blackberry cured": { co2: 1.14, water: 447, animalImpact: 2, weight: 100 },
-  "seitan grilled": { co2: 1.62, water: 2116, animalImpact: 2, weight: 20 },
-  "tahini flakes": { co2: 5.73, water: 1993, animalImpact: 2, weight: 200 },
-  "sunflower oil sliced": { co2: 4.57, water: 1829, animalImpact: 3, weight: 10 },
-  "mango roasted": { co2: 1.06, water: 803, animalImpact: 1, weight: 10 },
-  "lobster extract": { co2: 5.8, water: 6718, animalImpact: 5, weight: 20 },
-  "carrot minced": { co2: 0.86, water: 420, animalImpact: 1, weight: 50 },
-  "garlic powder chopped": { co2: 1.25, water: 262, animalImpact: 1, weight: 50 },
-  "relish extract": { co2: 3.09, water: 981, animalImpact: 0, weight: 10 },
-  "broccoli": { co2: 0.94, water: 306, animalImpact: 2, weight: 70 },
-  "pistachio oil": { co2: 3.04, water: 9857, animalImpact: 4, weight: 70 },
-  "almond powder": { co2: 3.56, water: 9548, animalImpact: 0, weight: 100 },
-  "ginger dried": { co2: 6.29, water: 2970, animalImpact: 0, weight: 10 },
-  "cumin paste": { co2: 2.25, water: 790, animalImpact: 2, weight: 150 },
-  "spinach minced": { co2: 1.04, water: 590, animalImpact: 2, weight: 20 },
-  "tuna flakes": { co2: 7.16, water: 3601, animalImpact: 5, weight: 100 },
-  "butter smoked": { co2: 9.93, water: 3852, animalImpact: 7, weight: 10 },
-  "eggs minced": { co2: 5.95, water: 2793, animalImpact: 2, weight: 150 },
-  "donut powder": { co2: 5.82, water: 3220, animalImpact: 3, weight: 200 },
-  "pesto salted": { co2: 2.06, water: 519, animalImpact: 1, weight: 30 },
-  "jam sweetened": { co2: 6.86, water: 2032, animalImpact: 2, weight: 20 },
-  "milk smoked": { co2: 12.44, water: 4241, animalImpact: 6, weight: 200 },
-  "tofu sauce": { co2: 1.39, water: 1413, animalImpact: 2, weight: 200 },
-  "quinoa sliced": { co2: 2.62, water: 2246, animalImpact: 1, weight: 30 },
-  "buckwheat unsweetened": { co2: 2.78, water: 2008, animalImpact: 2, weight: 150 },
-  "barbecue sauce grilled": { co2: 2.95, water: 1106, animalImpact: 2, weight: 50 },
-  "cider salted": { co2: 10.37, water: 4044, animalImpact: 0, weight: 100 },
-  "sourdough salted": { co2: 1.78, water: 971, animalImpact: 1, weight: 10 },
-  "cucumber unsweetened": { co2: 1.11, water: 510, animalImpact: 0, weight: 10 },
-  "bread cured": { co2: 2.26, water: 1853, animalImpact: 1, weight: 50 },
-  "raspberry salted": { co2: 1.31, water: 635, animalImpact: 1, weight: 50 },
-  "peanut butter sliced": { co2: 11.54, water: 2354, animalImpact: 7, weight: 100 },
-  "vinegar": { co2: 7.08, water: 1691, animalImpact: 3, weight: 30 },
-  "pizza salted": { co2: 1.87, water: 804, animalImpact: 1, weight: 200 },
-  "wheat minced": { co2: 2.76, water: 2063, animalImpact: 2, weight: 30 },
-  "lettuce powder (powdered)": { co2: 0.71, water: 307, animalImpact: 1, weight: 100 },
-  "kidney beans chopped": { co2: 1.07, water: 1721, animalImpact: 0, weight: 100 },
-  "onion minced": { co2: 1.2, water: 562, animalImpact: 2, weight: 100 },
-  "crab salted": { co2: 3.79, water: 5927, animalImpact: 4, weight: 50 },
-  "jelly sauce": { co2: 2.96, water: 833, animalImpact: 1, weight: 150 },
-  "turkey minced": { co2: 7.06, water: 4692, animalImpact: 9, weight: 30 },
-  "espresso dried": { co2: 7.07, water: 2149, animalImpact: 0, weight: 50 },
-  "hazelnut (powdered)": { co2: 3.06, water: 6455, animalImpact: 1, weight: 30 },
-  "tea grilled": { co2: 7.31, water: 3468, animalImpact: 1, weight: 50 },
-  "buckwheat powdered (powdered)": { co2: 1.92, water: 1986, animalImpact: 1, weight: 100 },
-  "shrimp sliced": { co2: 7.91, water: 5474, animalImpact: 6, weight: 200 },
-  "quinoa roasted": { co2: 2.45, water: 2427, animalImpact: 3, weight: 30 },
-  "tempeh flakes": { co2: 1.73, water: 1934, animalImpact: 0, weight: 70 },
-  "tofu sliced": { co2: 1.33, water: 2123, animalImpact: 1, weight: 100 },
-  "wheat roasted": { co2: 2.74, water: 1499, animalImpact: 1, weight: 50 },
-  "shrimp powdered": { co2: 6.05, water: 4060, animalImpact: 5, weight: 150 },
-  "bread grilled": { co2: 2.45, water: 2570, animalImpact: 0, weight: 150 },
-  "palm oil sauce": { co2: 5.47, water: 1471, animalImpact: 2, weight: 50 },
-  "raspberry sweetened": { co2: 1.2, water: 421, animalImpact: 2, weight: 150 },
-  "jelly extract": { co2: 6.42, water: 2399, animalImpact: 0, weight: 150 },
-  "ketchup grilled": { co2: 3.03, water: 1167, animalImpact: 0, weight: 10 },
-  "cookie sweetened": { co2: 7.08, water: 2187, animalImpact: 1, weight: 30 },
-  "tilapia oil": { co2: 6.66, water: 5172, animalImpact: 6, weight: 30 },
-  "balsamic vinegar concentrate": { co2: 5.93, water: 1895, animalImpact: 0, weight: 20 },
-  "spinach concentrate": { co2: 1.02, water: 393, animalImpact: 1, weight: 150 },
-  "macadamia roasted": { co2: 2.43, water: 6067, animalImpact: 0, weight: 20 },
-  "hazelnut sweetened": { co2: 3.2, water: 4864, animalImpact: 2, weight: 70 },
-  "sugar grilled": { co2: 1.58, water: 1581, animalImpact: 1, weight: 150 },
-  "molasses powder": { co2: 2.33, water: 1419, animalImpact: 2, weight: 70 },
-  "coconut oil": { co2: 1.26, water: 628, animalImpact: 0, weight: 200 },
-  "walnut extract": { co2: 3.48, water: 7720, animalImpact: 1, weight: 150 },
-  "rice vinegar dried": { co2: 2.24, water: 2179, animalImpact: 3, weight: 200 },
-  "muffin chopped": { co2: 5.47, water: 1977, animalImpact: 2, weight: 30 },
-  "pancake sweetened (powdered)": { co2: 6.99, water: 2266, animalImpact: 4, weight: 10 },
-  "mango powder": { co2: 1.44, water: 507, animalImpact: 1, weight: 150 },
-  "grape chopped": { co2: 1.53, water: 312, animalImpact: 2, weight: 200 },
-  "haddock concentrate": { co2: 5.72, water: 3816, animalImpact: 5, weight: 50 },
-  "mayonnaise extract": { co2: 3.18, water: 975, animalImpact: 2, weight: 10 },
-  "maize grilled": { co2: 2.19, water: 1566, animalImpact: 2, weight: 70 },
-  "cappuccino concentrate": { co2: 8.05, water: 2603, animalImpact: 1, weight: 70 },
-  "eggs smoked": { co2: 3.96, water: 3084, animalImpact: 5, weight: 100 },
-  "tomato flakes": { co2: 0.99, water: 366, animalImpact: 2, weight: 100 },
-  "kiwi concentrate": { co2: 1.45, water: 548, animalImpact: 1, weight: 50 },
-  "seitan unsweetened": { co2: 1.75, water: 1907, animalImpact: 1, weight: 10 },
-  "cracker powdered": { co2: 5.22, water: 2194, animalImpact: 4, weight: 50 },
-  "cabbage extract": { co2: 1.05, water: 341, animalImpact: 0, weight: 100 },
-  "bread paste": { co2: 2.43, water: 1494, animalImpact: 3, weight: 100 },
-  "peanut extract": { co2: 1.22, water: 1987, animalImpact: 0, weight: 100 },
-  "coconut oil concentrate": { co2: 1.11, water: 613, animalImpact: 2, weight: 20 },
-  "bread oil": { co2: 2.68, water: 2263, animalImpact: 0, weight: 70 },
-  "tea powder": { co2: 10.19, water: 4520, animalImpact: 0, weight: 200 },
-  "scallops dried": { co2: 8.22, water: 4118, animalImpact: 5, weight: 10 },
-  "rice smoked": { co2: 2.52, water: 1757, animalImpact: 1, weight: 20 },
-  "pepper sliced": { co2: 0.83, water: 392, animalImpact: 1, weight: 50 },
-  "soy sauce oil (powdered)": { co2: 1.87, water: 2016, animalImpact: 1, weight: 70 },
-  "goat flakes": { co2: 65.18, water: 13460, animalImpact: 10, weight: 10 },
-  "tomato powdered": { co2: 0.82, water: 387, animalImpact: 0, weight: 30 },
-  "cabbage grilled": { co2: 1.09, water: 473, animalImpact: 3, weight: 150 },
-  "oats extract": { co2: 2.76, water: 1973, animalImpact: 2, weight: 20 },
-  "latte concentrate": { co2: 8.2, water: 2423, animalImpact: 0, weight: 10 },
-  "beef roasted": { co2: 54.08, water: 16604, animalImpact: 10, weight: 10 },
-  "waffle concentrate": { co2: 5.42, water: 1873, animalImpact: 1, weight: 20 },
-  "brownie unsweetened": { co2: 6.32, water: 2124, animalImpact: 2, weight: 70 },
-  "waffle oil": { co2: 5.47, water: 1350, animalImpact: 1, weight: 200 },
-  "butter grilled": { co2: 12.24, water: 3517, animalImpact: 8, weight: 200 },
-  "salmon dried": { co2: 5.06, water: 5785, animalImpact: 6, weight: 70 },
-  "cappuccino extract": { co2: 8.93, water: 2933, animalImpact: 2, weight: 10 },
-  "yam chopped": { co2: 6.51, water: 1748, animalImpact: 4, weight: 20 },
-  "soy": { co2: 1.43, water: 1790, animalImpact: 0, weight: 70 },
-  "almond chopped": { co2: 3.38, water: 8662, animalImpact: 2, weight: 200 },
-  "blackberry sliced": { co2: 1.01, water: 617, animalImpact: 1, weight: 30 },
-  "vinegar grilled": { co2: 5.64, water: 1889, animalImpact: 1, weight: 150 },
-  "olive oil unsweetened (powdered)": { co2: 4.43, water: 974, animalImpact: 2, weight: 200 },
-  "chickpeas concentrate": { co2: 1.48, water: 2803, animalImpact: 1, weight: 50 },
-  "cauliflower cured": { co2: 0.98, water: 365, animalImpact: 1, weight: 100 },
-  "cappuccino sliced": { co2: 7.23, water: 3584, animalImpact: 0, weight: 10 },
-  "maize sauce": { co2: 2.07, water: 2089, animalImpact: 2, weight: 100 },
-  "grape minced": { co2: 1.46, water: 680, animalImpact: 1, weight: 150 },
-  "corn syrup extract": { co2: 2.04, water: 2179, animalImpact: 2, weight: 100 },
-  "pork grilled": { co2: 54.63, water: 18030, animalImpact: 10, weight: 10 },
-  "pesto salted (powdered)": { co2: 2.34, water: 917, animalImpact: 0, weight: 50 },
-  "cardamom minced": { co2: 1.83, water: 907, animalImpact: 1, weight: 200 },
-  "kale salted": { co2: 0.81, water: 325, animalImpact: 0, weight: 20 },
-  "mayonnaise": { co2: 3.37, water: 1248, animalImpact: 0, weight: 70 },
-  "barbecue sauce cured": { co2: 3.75, water: 1264, animalImpact: 0, weight: 150 },
-  "hazelnut concentrate": { co2: 3.04, water: 9411, animalImpact: 3, weight: 150 },
-  "sardine minced": { co2: 4.23, water: 5553, animalImpact: 6, weight: 200 },
-  "ginger sweetened": { co2: 6.64, water: 3467, animalImpact: 1, weight: 10 },
-  "pasta cured": { co2: 2.99, water: 1671, animalImpact: 2, weight: 20 },
-  "brown sugar unsweetened": { co2: 2.49, water: 1475, animalImpact: 3, weight: 150 },
-  "beer extract": { co2: 11.1, water: 2638, animalImpact: 0, weight: 150 },
-  "rice vinegar cured": { co2: 2.56, water: 1761, animalImpact: 0, weight: 50 },
-  "cheese oil": { co2: 9.65, water: 4123, animalImpact: 5, weight: 30 },
-  "cookie salted": { co2: 1.25, water: 765, animalImpact: 1, weight: 100 },
-  "marinara grilled": { co2: 3.66, water: 889, animalImpact: 0, weight: 70 },
-  "salt": { co2: 1.44, water: 888, animalImpact: 1, weight: 10 },
-  "cheese concentrate": { co2: 10.65, water: 3987, animalImpact: 6, weight: 70 },
-  "yogurt salted (powdered)": { co2: 12.87, water: 3627, animalImpact: 6, weight: 50 },
-  "marinara sliced": { co2: 3.17, water: 650, animalImpact: 1, weight: 150 },
-  "brown sugar roasted": { co2: 2.43, water: 2108, animalImpact: 1, weight: 10 },
-  "barley concentrate": { co2: 3.01, water: 1417, animalImpact: 0, weight: 100 },
-  "milk oil": { co2: 10.38, water: 3967, animalImpact: 7, weight: 30 },
-  "crab cured": { co2: 6.7, water: 4683, animalImpact: 5, weight: 70 },
-  "rice minced": { co2: 2.72, water: 2105, animalImpact: 1, weight: 100 },
-  "balsamic vinegar powder": { co2: 4.78, water: 1454, animalImpact: 1, weight: 100 },
-  "kidney beans minced": { co2: 1.88, water: 2467, animalImpact: 1, weight: 30 },
-  "cream minced": { co2: 9.01, water: 5151, animalImpact: 5, weight: 10 },
-  "beef chopped": { co2: 44.24, water: 18414, animalImpact: 9, weight: 50 },
-  "amaranth minced": { co2: 6.13, water: 1811, animalImpact: 2, weight: 10 },
-  "brownie smoked": { co2: 7.44, water: 1832, animalImpact: 3, weight: 100 },
-  "donut dried": { co2: 7.12, water: 2868, animalImpact: 2, weight: 20 },
-  "cumin dried": { co2: 1.99, water: 900, animalImpact: 2, weight: 100 },
-  "millet dried": { co2: 6.3, water: 2274, animalImpact: 4, weight: 70 },
-  "coffee sliced": { co2: 8.95, water: 2568, animalImpact: 0, weight: 150 },
-  "pork salted (powdered)": { co2: 49.5, water: 13934, animalImpact: 10, weight: 20 },
-  "olive oil cured": { co2: 4.77, water: 1558, animalImpact: 0, weight: 20 },
-  "sweet potato smoked": { co2: 1.02, water: 382, animalImpact: 1, weight: 150 },
-  "relish powdered": { co2: 3.26, water: 1185, animalImpact: 2, weight: 100 },
-  "maize salted": { co2: 2.57, water: 2090, animalImpact: 0, weight: 20 },
-  "garlic oil": { co2: 0.93, water: 460, animalImpact: 0, weight: 150 },
-  "mayonnaise unsweetened": { co2: 3.1, water: 1118, animalImpact: 2, weight: 200 },
-  "barbecue sauce dried": { co2: 2.16, water: 1082, animalImpact: 1, weight: 200 },
-  "kale chopped": { co2: 0.96, water: 369, animalImpact: 0, weight: 100 },
-  "noodles smoked": { co2: 1.95, water: 1668, animalImpact: 0, weight: 30 },
-  "alfredo sweetened": { co2: 2.81, water: 1193, animalImpact: 2, weight: 50 },
-  "cappuccino roasted": { co2: 8.03, water: 2425, animalImpact: 1, weight: 100 },
-  "sourdough smoked": { co2: 6.16, water: 1543, animalImpact: 3, weight: 20 },
-  "potato paste": { co2: 1.14, water: 442, animalImpact: 3, weight: 20 },
-  "pinto beans": { co2: 4.88, water: 1461, animalImpact: 0, weight: 50 },
-  "millet salted": { co2: 1.76, water: 956, animalImpact: 0, weight: 30 },
-  "jelly powdered": { co2: 5.61, water: 1998, animalImpact: 2, weight: 50 },
-  "vodka sauce": { co2: 8.13, water: 3224, animalImpact: 0, weight: 30 },
-  "pasta chopped (powdered)": { co2: 2.52, water: 1710, animalImpact: 1, weight: 50 },
-  "cardamom powder (powdered)": { co2: 2.22, water: 755, animalImpact: 1, weight: 70 },
-  "blueberry sweetened": { co2: 1.32, water: 755, animalImpact: 0, weight: 20 },
-  "muffin concentrate": { co2: 6.98, water: 2402, animalImpact: 1, weight: 100 },
-  "zucchini grilled": { co2: 1.01, water: 394, animalImpact: 2, weight: 50 },
-  "pinto beans cured": { co2: 5.35, water: 2061, animalImpact: 3, weight: 100 },
-  "rice vinegar flakes": { co2: 2.21, water: 2183, animalImpact: 2, weight: 200 },
-  "butter sweetened": { co2: 11.47, water: 3574, animalImpact: 6, weight: 10 },
-  "lamb sweetened": { co2: 55.96, water: 17693, animalImpact: 10, weight: 30 },
-  "strawberry sauce": { co2: 1.14, water: 337, animalImpact: 2, weight: 10 },
-  "sweet potato dried": { co2: 0.87, water: 343, animalImpact: 0, weight: 150 },
-  "apple cider vinegar paste": { co2: 1.21, water: 632, animalImpact: 0, weight: 70 },
-  "tilapia minced": { co2: 5.72, water: 4306, animalImpact: 5, weight: 10 },
-  "cheese cured": { co2: 10.55, water: 2769, animalImpact: 6, weight: 30 },
-  "beer flakes": { co2: 9.32, water: 2529, animalImpact: 1, weight: 20 },
-  "almond grilled": { co2: 2.62, water: 9626, animalImpact: 0, weight: 10 },
-  "paprika cured": { co2: 2.33, water: 624, animalImpact: 0, weight: 200 },
-  "avocado oil chopped": { co2: 5.76, water: 1472, animalImpact: 0, weight: 20 },
-  "salt paste": { co2: 2.07, water: 450, animalImpact: 2, weight: 150 },
-  "papaya oil (powdered)": { co2: 1.32, water: 599, animalImpact: 1, weight: 20 },
-  "waffle": { co2: 6.45, water: 2694, animalImpact: 2, weight: 150 },
-  "jam concentrate": { co2: 6.23, water: 1497, animalImpact: 2, weight: 70 },
-  "maple syrup oil": { co2: 5.18, water: 1163, animalImpact: 0, weight: 70 },
-  "garlic sweetened": { co2: 1.14, water: 363, animalImpact: 0, weight: 20 },
-  "apple smoked": { co2: 1.28, water: 582, animalImpact: 0, weight: 10 },
-  "rice dried": { co2: 2.47, water: 1466, animalImpact: 1, weight: 20 },
-  "navy beans unsweetened (powdered)": { co2: 4.06, water: 2766, animalImpact: 1, weight: 10 },
-  "crab grilled": { co2: 5.28, water: 4893, animalImpact: 6, weight: 70 },
-  "anchovy powder": { co2: 4.61, water: 4407, animalImpact: 4, weight: 100 },
-  "grape": { co2: 1.02, water: 682, animalImpact: 1, weight: 150 },
-  "bell pepper sliced": { co2: 1.01, water: 413, animalImpact: 0, weight: 70 },
-  "marinara sweetened": { co2: 2.03, water: 1156, animalImpact: 1, weight: 50 },
-  "cardamom sliced": { co2: 1.98, water: 963, animalImpact: 1, weight: 70 },
-  "cabbage flakes": { co2: 1.04, water: 557, animalImpact: 0, weight: 70 },
-  "turmeric sliced": { co2: 2.06, water: 532, animalImpact: 2, weight: 200 },
-  "jelly": { co2: 5.76, water: 1980, animalImpact: 3, weight: 50 },
-  "apple minced": { co2: 1.07, water: 718, animalImpact: 1, weight: 70 },
-  "almond sliced": { co2: 2.66, water: 8274, animalImpact: 1, weight: 30 },
-  "bagel minced": { co2: 2.73, water: 1804, animalImpact: 2, weight: 50 },
-  "cracker oil": { co2: 4.63, water: 1511, animalImpact: 2, weight: 50 },
-  "cheese extract": { co2: 8.39, water: 4456, animalImpact: 6, weight: 200 },
-  "coconut oil unsweetened": { co2: 1.25, water: 798, animalImpact: 0, weight: 70 },
-  "tortilla sauce": { co2: 2.76, water: 1836, animalImpact: 1, weight: 10 },
-  "pancake roasted": { co2: 7.16, water: 1542, animalImpact: 2, weight: 150 },
-  "crab smoked": { co2: 5.68, water: 3553, animalImpact: 5, weight: 50 },
-  "canola oil unsweetened": { co2: 4.89, water: 1590, animalImpact: 2, weight: 70 },
-  "bread unsweetened": { co2: 2.66, water: 2384, animalImpact: 0, weight: 100 },
-  "molasses concentrate": { co2: 2.24, water: 896, animalImpact: 0, weight: 50 },
-  "walnut concentrate": { co2: 2.17, water: 6926, animalImpact: 2, weight: 30 },
-  "bagel": { co2: 3.13, water: 683, animalImpact: 1, weight: 100 },
-  "noodles powdered": { co2: 2.57, water: 1902, animalImpact: 1, weight: 50 },
-  "cashew smoked": { co2: 3.16, water: 7907, animalImpact: 2, weight: 70 },
-  "eggplant unsweetened": { co2: 4.04, water: 2774, animalImpact: 6, weight: 100 },
-  "cinnamon dried": { co2: 2.46, water: 748, animalImpact: 2, weight: 30 },
-  "wine sweetened": { co2: 8.41, water: 2865, animalImpact: 0, weight: 70 },
-  "raspberry unsweetened": { co2: 1.33, water: 582, animalImpact: 2, weight: 100 },
-  "jelly cured": { co2: 5.51, water: 2131, animalImpact: 4, weight: 70 },
-  "navy beans oil": { co2: 5.17, water: 1586, animalImpact: 1, weight: 200 },
-  "barbecue sauce powder (powdered)": { co2: 2.39, water: 1205, animalImpact: 2, weight: 30 },
-  "edamame sliced": { co2: 1.59, water: 2005, animalImpact: 2, weight: 30 },
-  "goat cured": { co2: 60.89, water: 15790, animalImpact: 10, weight: 200 },
-  "onion powder salted": { co2: 0.9, water: 358, animalImpact: 1, weight: 30 },
-  "vinegar unsweetened": { co2: 5.99, water: 1180, animalImpact: 1, weight: 70 },
-  "peanut smoked": { co2: 1.63, water: 1801, animalImpact: 1, weight: 10 },
-  "wheat cured": { co2: 2.7, water: 1700, animalImpact: 1, weight: 200 },
-  "sourdough powdered (powdered)": { co2: 6.02, water: 1698, animalImpact: 2, weight: 50 },
-  "rice salted": { co2: 2.09, water: 2270, animalImpact: 1, weight: 150 },
-  "sesame oil extract": { co2: 5.28, water: 1303, animalImpact: 1, weight: 70 },
-  "sweet potato salted": { co2: 0.75, water: 481, animalImpact: 1, weight: 200 },
-  "whiskey smoked": { co2: 8.9, water: 2722, animalImpact: 0, weight: 10 },
-  "salmon powder": { co2: 8.39, water: 4834, animalImpact: 5, weight: 200 },
-  "maize extract": { co2: 2.69, water: 2278, animalImpact: 1, weight: 150 },
-  "carrot grilled": { co2: 0.74, water: 432, animalImpact: 0, weight: 30 },
-  "seitan concentrate": { co2: 1.88, water: 2406, animalImpact: 1, weight: 50 },
-  "pineapple sliced": { co2: 1.42, water: 742, animalImpact: 1, weight: 200 },
-  "cashew cured": { co2: 3.77, water: 8410, animalImpact: 2, weight: 70 },
-  "lettuce sauce": { co2: 1.34, water: 449, animalImpact: 0, weight: 70 },
-  "milk chopped": { co2: 9.85, water: 3821, animalImpact: 5, weight: 20 },
-  "orange roasted": { co2: 1.27, water: 683, animalImpact: 2, weight: 10 },
-  "amaranth sweetened": { co2: 7.08, water: 1467, animalImpact: 2, weight: 100 },
-  "almond unsweetened": { co2: 3.75, water: 7488, animalImpact: 2, weight: 30 },
-  "zucchini smoked": { co2: 1.05, water: 477, animalImpact: 1, weight: 30 },
-  "pineapple powder": { co2: 1.06, water: 638, animalImpact: 1, weight: 30 },
-  "onion powder concentrate": { co2: 0.91, water: 270, animalImpact: 0, weight: 30 },
-  "black beans cured": { co2: 1.45, water: 2299, animalImpact: 1, weight: 150 },
-  "clams": { co2: 6.03, water: 1634, animalImpact: 3, weight: 100 },
-  "sardine cured": { co2: 6.05, water: 3981, animalImpact: 5, weight: 100 },
-  "macadamia flakes": { co2: 3.45, water: 10775, animalImpact: 2, weight: 30 },
-  "lobster powder": { co2: 5.59, water: 4537, animalImpact: 3, weight: 200 },
-  "pancake unsweetened": { co2: 5.26, water: 1985, animalImpact: 3, weight: 20 },
-  "barley oil": { co2: 3.14, water: 1671, animalImpact: 0, weight: 100 },
-  "pesto roasted": { co2: 3.13, water: 1019, animalImpact: 1, weight: 70 },
-  "soy sauce powder": { co2: 1.55, water: 1861, animalImpact: 1, weight: 20 },
-  "anchovy cured": { co2: 7.06, water: 2523, animalImpact: 4, weight: 150 },
-  "ginger roasted": { co2: 8.38, water: 3327, animalImpact: 0, weight: 30 },
-  "teriyaki sauce unsweetened": { co2: 3.24, water: 895, animalImpact: 2, weight: 100 },
-  "coconut oil roasted": { co2: 0.94, water: 681, animalImpact: 0, weight: 50 },
-  "sesame oil salted": { co2: 4.39, water: 1480, animalImpact: 4, weight: 200 },
-  "maple syrup": { co2: 2.4, water: 1748, animalImpact: 0, weight: 70 },
-  "rice powdered": { co2: 2.37, water: 2076, animalImpact: 2, weight: 70 },
-  "tahini paste": { co2: 5.49, water: 2057, animalImpact: 2, weight: 50 },
-  "banana concentrate": { co2: 1.58, water: 701, animalImpact: 2, weight: 50 },
-  "pinto beans minced": { co2: 6.78, water: 2661, animalImpact: 2, weight: 20 },
-  "balsamic vinegar powdered (powdered)": { co2: 4.9, water: 2140, animalImpact: 1, weight: 10 },
-  "broccoli chopped": { co2: 0.68, water: 474, animalImpact: 2, weight: 10 },
-  "espresso sliced": { co2: 9.41, water: 2479, animalImpact: 0, weight: 30 },
-  "tuna powder": { co2: 8.4, water: 4460, animalImpact: 5, weight: 20 },
-  "mayonnaise roasted": { co2: 2.41, water: 916, animalImpact: 1, weight: 20 },
-  "bagel sweetened": { co2: 2.22, water: 1906, animalImpact: 0, weight: 30 },
-  "venison grilled": { co2: 54.77, water: 10652, animalImpact: 10, weight: 50 },
-  "pancake extract": { co2: 5.9, water: 2421, animalImpact: 1, weight: 20 },
-  "tea roasted": { co2: 6.56, water: 3201, animalImpact: 1, weight: 10 },
-  "garlic sauce": { co2: 0.66, water: 237, animalImpact: 0, weight: 10 },
-  "banana oil": { co2: 1.24, water: 707, animalImpact: 2, weight: 20 },
-  "macadamia powder": { co2: 2.82, water: 7376, animalImpact: 1, weight: 100 },
-  "rye minced": { co2: 2.23, water: 1737, animalImpact: 1, weight: 70 },
-  "turkey": { co2: 8.07, water: 3887, animalImpact: 6, weight: 50 },
-  "whiskey concentrate": { co2: 8.42, water: 2956, animalImpact: 0, weight: 150 },
-  "blackberry chopped": { co2: 1.56, water: 628, animalImpact: 1, weight: 150 },
-  "brownie flakes": { co2: 5.47, water: 1463, animalImpact: 2, weight: 20 },
-  "clams oil": { co2: 3.35, water: 1678, animalImpact: 2, weight: 70 },
-  "broccoli grilled": { co2: 1.02, water: 440, animalImpact: 2, weight: 100 },
-  "bell pepper powdered": { co2: 1.18, water: 387, animalImpact: 2, weight: 150 },
-  "quinoa salted": { co2: 2.01, water: 2055, animalImpact: 2, weight: 150 },
-  "rabbit dried": { co2: 38.8, water: 14413, animalImpact: 10, weight: 150 },
-  "carrot unsweetened": { co2: 0.84, water: 347, animalImpact: 1, weight: 30 },
-  "almond butter salted": { co2: 10.24, water: 3864, animalImpact: 5, weight: 30 },
-  "paprika paste": { co2: 1.41, water: 713, animalImpact: 1, weight: 20 },
-  "pork sauce": { co2: 58.79, water: 11682, animalImpact: 10, weight: 150 },
-  "tea powdered": { co2: 5.54, water: 4163, animalImpact: 0, weight: 70 },
-  "salmon oil": { co2: 6.61, water: 5899, animalImpact: 4, weight: 50 },
-  "balsamic vinegar extract": { co2: 5.54, water: 2160, animalImpact: 2, weight: 200 },
-  "venison cured": { co2: 39.35, water: 15847, animalImpact: 10, weight: 200 },
-  "rabbit sauce": { co2: 56.8, water: 19997, animalImpact: 10, weight: 10 },
-  "blackberry roasted": { co2: 1.14, water: 528, animalImpact: 1, weight: 200 },
-  "vodka grilled": { co2: 8.72, water: 3840, animalImpact: 0, weight: 150 },
-  "corn syrup powder": { co2: 2.77, water: 1429, animalImpact: 0, weight: 10 },
-  "waffle flakes": { co2: 7.31, water: 2054, animalImpact: 2, weight: 50 },
-  "muffin salted": { co2: 1.96, water: 596, animalImpact: 0, weight: 10 },
-  "sardine powdered": { co2: 5.87, water: 5659, animalImpact: 4, weight: 70 },
-  "garlic powder sauce": { co2: 0.96, water: 382, animalImpact: 0, weight: 200 },
-  "almond cured": { co2: 2.97, water: 8677, animalImpact: 0, weight: 30 },
-  "honey roasted": { co2: 2.33, water: 1861, animalImpact: 3, weight: 200 },
-  "almond concentrate": { co2: 2.42, water: 6499, animalImpact: 0, weight: 30 },
-  "chicken dried": { co2: 6.05, water: 4767, animalImpact: 5, weight: 30 },
-  "shrimp minced": { co2: 5.87, water: 4223, animalImpact: 5, weight: 30 },
-  "carrot smoked": { co2: 1.14, water: 555, animalImpact: 1, weight: 70 },
-  "barley smoked": { co2: 2.49, water: 1273, animalImpact: 1, weight: 200 },
-  "bagel smoked": { co2: 2.95, water: 2259, animalImpact: 1, weight: 50 },
-  "eggplant powder": { co2: 5.94, water: 4023, animalImpact: 5, weight: 70 },
-  "kale dried (powdered)": { co2: 0.92, water: 424, animalImpact: 0, weight: 30 },
-  "cardamom sweetened": { co2: 1.64, water: 1066, animalImpact: 1, weight: 100 },
-  "palm oil sliced": { co2: 5.08, water: 923, animalImpact: 2, weight: 20 },
-  "kiwi minced": { co2: 1.28, water: 417, animalImpact: 1, weight: 10 },
-  "pasta unsweetened": { co2: 2.81, water: 1971, animalImpact: 0, weight: 100 },
-  "waffle grilled": { co2: 5.5, water: 2233, animalImpact: 3, weight: 70 },
-  "anchovy": { co2: 4.43, water: 4851, animalImpact: 5, weight: 150 },
-  "marinara oil (powdered)": { co2: 4.49, water: 1573, animalImpact: 2, weight: 20 },
-  "garlic powdered": { co2: 0.99, water: 407, animalImpact: 1, weight: 10 },
-  "crab oil": { co2: 5.24, water: 3794, animalImpact: 6, weight: 200 },
-  "millet paste": { co2: 4.68, water: 1394, animalImpact: 1, weight: 150 },
-  "seitan cured": { co2: 1.45, water: 1945, animalImpact: 0, weight: 10 },
-  "bell pepper dried": { co2: 0.99, water: 419, animalImpact: 2, weight: 30 },
-  "tahini unsweetened": { co2: 5.87, water: 1338, animalImpact: 1, weight: 70 },
-  "peanut grilled": { co2: 1.21, water: 2543, animalImpact: 1, weight: 30 },
-  "macadamia chopped": { co2: 3.52, water: 8614, animalImpact: 0, weight: 200 },
-  "cake": { co2: 6.43, water: 1869, animalImpact: 1, weight: 70 },
-  "spinach paste": { co2: 1.15, water: 585, animalImpact: 3, weight: 30 },
-  "yogurt powder": { co2: 9.59, water: 2671, animalImpact: 8, weight: 20 },
-  "broccoli smoked": { co2: 1.01, water: 508, animalImpact: 2, weight: 70 },
-  "rye sweetened": { co2: 2.33, water: 1789, animalImpact: 1, weight: 100 },
-  "coriander flakes": { co2: 2.23, water: 843, animalImpact: 1, weight: 20 },
-  "yogurt salted": { co2: 9.65, water: 3851, animalImpact: 6, weight: 50 },
-  "shrimp dried": { co2: 5.3, water: 5374, animalImpact: 4, weight: 10 },
-  "goat": { co2: 48.4, water: 13733, animalImpact: 10, weight: 30 },
-  "balsamic vinegar sweetened": { co2: 6.31, water: 1840, animalImpact: 1, weight: 100 },
-  "teriyaki sauce dried": { co2: 3.02, water: 776, animalImpact: 2, weight: 200 },
-  "cappuccino smoked": { co2: 9.62, water: 3316, animalImpact: 0, weight: 70 },
-  "kale minced": { co2: 1.17, water: 417, animalImpact: 0, weight: 30 },
-  "sweet potato chopped": { co2: 1.13, water: 425, animalImpact: 1, weight: 20 },
-  "spinach salted": { co2: 1.05, water: 304, animalImpact: 0, weight: 50 },
-  "sugar dried": { co2: 2.18, water: 1988, animalImpact: 0, weight: 150 },
-  "hummus minced": { co2: 6.12, water: 2587, animalImpact: 4, weight: 200 },
-  "beef sweetened": { co2: 58.15, water: 14379, animalImpact: 10, weight: 200 },
-  "lobster powdered": { co2: 6.39, water: 4682, animalImpact: 6, weight: 150 },
-  "spinach grilled": { co2: 0.76, water: 451, animalImpact: 1, weight: 30 },
-  "almond butter": { co2: 9.12, water: 2848, animalImpact: 6, weight: 200 },
-  "cucumber powdered": { co2: 1.2, water: 458, animalImpact: 1, weight: 150 },
-  "zucchini dried": { co2: 0.86, water: 338, animalImpact: 2, weight: 10 },
-  "palm oil salted": { co2: 3.8, water: 1884, animalImpact: 1, weight: 100 },
-  "honey minced": { co2: 1.73, water: 2014, animalImpact: 1, weight: 30 },
-  "sardine salted": { co2: 6.54, water: 6032, animalImpact: 4, weight: 30 },
-  "cassava paste": { co2: 6.14, water: 2031, animalImpact: 2, weight: 150 },
-  "venison dried": { co2: 41.48, water: 17048, animalImpact: 8, weight: 150 },
-  "rum sauce": { co2: 6.03, water: 3509, animalImpact: 0, weight: 150 },
-  "rice vinegar": { co2: 2.68, water: 2168, animalImpact: 0, weight: 70 },
-  "tea salted": { co2: 8.33, water: 3034, animalImpact: 0, weight: 200 },
-  "navy beans paste": { co2: 6.09, water: 1218, animalImpact: 2, weight: 70 },
-  "onion powder cured": { co2: 1.05, water: 378, animalImpact: 0, weight: 20 },
-  "espresso salted": { co2: 8.34, water: 2924, animalImpact: 0, weight: 100 },
-  "teriyaki sauce": { co2: 2.5, water: 982, animalImpact: 1, weight: 70 },
-  "yam sauce (powdered)": { co2: 2.53, water: 1294, animalImpact: 0, weight: 70 },
-  "lentils grilled": { co2: 1.21, water: 1741, animalImpact: 1, weight: 10 },
-  "cassava grilled": { co2: 7.42, water: 1219, animalImpact: 2, weight: 70 },
-  "pineapple paste": { co2: 1.18, water: 691, animalImpact: 1, weight: 30 },
-  "strawberry extract": { co2: 0.96, water: 672, animalImpact: 0, weight: 100 },
-  "edamame paste": { co2: 1.69, water: 1313, animalImpact: 1, weight: 150 },
-  "orange smoked": { co2: 1.01, water: 678, animalImpact: 2, weight: 100 },
-  "tempeh concentrate": { co2: 1.6, water: 2161, animalImpact: 0, weight: 50 },
-  "avocado oil sliced": { co2: 5.38, water: 1871, animalImpact: 3, weight: 10 },
-  "cassava smoked": { co2: 5.56, water: 2450, animalImpact: 2, weight: 100 },
-  "paprika unsweetened": { co2: 1.96, water: 890, animalImpact: 0, weight: 70 },
-  "honey smoked": { co2: 2.0, water: 1213, animalImpact: 0, weight: 100 },
-  "scallops minced": { co2: 5.69, water: 3707, animalImpact: 3, weight: 10 },
-  "tea flakes": { co2: 7.56, water: 2486, animalImpact: 0, weight: 10 },
-  "sorghum unsweetened": { co2: 2.22, water: 2541, animalImpact: 0, weight: 50 },
-  "pork dried": { co2: 57.51, water: 18194, animalImpact: 10, weight: 30 },
-  "macadamia sauce": { co2: 2.66, water: 4327, animalImpact: 1, weight: 200 },
-  "kiwi roasted": { co2: 1.05, water: 421, animalImpact: 1, weight: 70 },
-  "lentils concentrate": { co2: 1.89, water: 1960, animalImpact: 2, weight: 200 },
-  "tortilla flakes": { co2: 2.53, water: 1721, animalImpact: 0, weight: 70 },
-  "pistachio powder": { co2: 2.22, water: 6904, animalImpact: 1, weight: 200 },
-  "oats grilled": { co2: 1.95, water: 1282, animalImpact: 1, weight: 100 },
-  "honey sweetened (powdered)": { co2: 1.8, water: 1637, animalImpact: 0, weight: 200 },
-  "cumin sliced": { co2: 2.1, water: 524, animalImpact: 1, weight: 200 },
-  "olive oil minced": { co2: 4.98, water: 1155, animalImpact: 2, weight: 20 },
-  "sunflower oil salted": { co2: 4.23, water: 1985, animalImpact: 1, weight: 50 },
-  "lobster salted (powdered)": { co2: 5.26, water: 4062, animalImpact: 5, weight: 150 },
-  "hazelnut chopped": { co2: 3.36, water: 6865, animalImpact: 1, weight: 10 },
-  "vinegar extract": { co2: 6.23, water: 2460, animalImpact: 2, weight: 70 },
-  "nutmeg (powdered)": { co2: 2.5, water: 897, animalImpact: 1, weight: 200 },
-  "banana dried (powdered)": { co2: 1.22, water: 710, animalImpact: 2, weight: 200 },
-  "tofu powdered": { co2: 1.75, water: 2315, animalImpact: 1, weight: 20 },
-  "beef grilled": { co2: 47.66, water: 14190, animalImpact: 10, weight: 50 },
-  "pepper minced": { co2: 1.22, water: 386, animalImpact: 0, weight: 30 },
-  "lettuce oil": { co2: 1.37, water: 339, animalImpact: 1, weight: 20 },
-  "kiwi paste": { co2: 1.29, water: 700, animalImpact: 1, weight: 10 },
-  "venison flakes": { co2: 54.82, water: 13034, animalImpact: 9, weight: 30 },
-  "rice sauce": { co2: 2.36, water: 1482, animalImpact: 1, weight: 200 },
-  "lamb oil": { co2: 61.28, water: 14569, animalImpact: 10, weight: 50 },
-  "crab unsweetened": { co2: 4.82, water: 3686, animalImpact: 5, weight: 70 },
-  "eggplant roasted (powdered)": { co2: 4.79, water: 3228, animalImpact: 5, weight: 20 },
-  "whiskey chopped": { co2: 9.42, water: 2940, animalImpact: 0, weight: 50 },
-  "salmon grilled": { co2: 6.28, water: 5593, animalImpact: 7, weight: 10 },
-  "sunflower oil powdered": { co2: 4.99, water: 1915, animalImpact: 2, weight: 20 },
-  "quinoa grilled": { co2: 2.24, water: 2264, animalImpact: 1, weight: 200 },
-  "vinegar sweetened": { co2: 6.43, water: 2570, animalImpact: 1, weight: 100 },
-  "apple flakes": { co2: 1.48, water: 531, animalImpact: 1, weight: 50 },
-  "kidney beans grilled": { co2: 1.73, water: 2143, animalImpact: 1, weight: 30 },
-  "brown sugar chopped": { co2: 2.4, water: 1704, animalImpact: 0, weight: 70 },
-  "cheese minced": { co2: 9.81, water: 3270, animalImpact: 7, weight: 200 },
-  "chocolate sauce": { co2: 9.77, water: 3094, animalImpact: 1, weight: 30 },
-  "peanut butter salted": { co2: 12.53, water: 4213, animalImpact: 3, weight: 200 },
-  "garlic powder concentrate (powdered)": { co2: 1.03, water: 253, animalImpact: 2, weight: 50 },
-  "spinach roasted": { co2: 1.16, water: 332, animalImpact: 2, weight: 10 },
-  "cocoa powder (powdered)": { co2: 9.26, water: 1990, animalImpact: 0, weight: 10 },
-  "walnut smoked": { co2: 3.65, water: 9334, animalImpact: 1, weight: 50 },
-  "goat chopped": { co2: 42.82, water: 14215, animalImpact: 10, weight: 200 },
-  "tahini sweetened (powdered)": { co2: 4.51, water: 2192, animalImpact: 3, weight: 100 },
-  "wheat dried": { co2: 2.23, water: 1820, animalImpact: 0, weight: 70 },
-  "pepper concentrate": { co2: 0.85, water: 332, animalImpact: 1, weight: 100 },
-  "sunflower oil smoked": { co2: 6.1, water: 1376, animalImpact: 1, weight: 20 },
-  "broccoli extract": { co2: 0.85, water: 294, animalImpact: 1, weight: 50 },
-  "ice cream minced": { co2: 6.96, water: 3384, animalImpact: 8, weight: 70 },
-  "tempeh dried": { co2: 1.25, water: 2139, animalImpact: 2, weight: 70 },
-  "nutmeg unsweetened": { co2: 1.7, water: 686, animalImpact: 0, weight: 20 },
-  "sardine smoked": { co2: 5.56, water: 4858, animalImpact: 5, weight: 30 },
-  "kiwi flakes": { co2: 1.18, water: 355, animalImpact: 1, weight: 10 },
-  "taro roasted": { co2: 5.54, water: 1945, animalImpact: 1, weight: 10 },
-  "yam oil": { co2: 5.67, water: 1651, animalImpact: 0, weight: 100 },
-  "tea sweetened": { co2: 7.35, water: 2576, animalImpact: 0, weight: 200 },
-  "ginger powdered": { co2: 6.97, water: 3412, animalImpact: 0, weight: 70 },
-  "apple grilled": { co2: 1.12, water: 825, animalImpact: 1, weight: 30 },
-  "whiskey sauce": { co2: 8.79, water: 2645, animalImpact: 3, weight: 30 },
-  "haddock extract": { co2: 7.18, water: 4453, animalImpact: 4, weight: 50 },
-  "marinara powder": { co2: 3.16, water: 1112, animalImpact: 1, weight: 200 },
-  "mustard sauce": { co2: 3.07, water: 1031, animalImpact: 3, weight: 200 },
-  "cucumber paste (powdered)": { co2: 0.89, water: 384, animalImpact: 0, weight: 100 },
-  "taro grilled": { co2: 7.48, water: 1872, animalImpact: 3, weight: 200 },
-  "amaranth paste": { co2: 5.95, water: 2066, animalImpact: 2, weight: 50 },
-  "jam cured": { co2: 6.67, water: 1873, animalImpact: 3, weight: 200 },
-  "peanut cured": { co2: 1.54, water: 1457, animalImpact: 1, weight: 10 },
-  "canola oil sliced": { co2: 5.44, water: 1270, animalImpact: 0, weight: 100 },
-  "garlic smoked": { co2: 1.09, water: 510, animalImpact: 2, weight: 200 },
-  "cocoa smoked": { co2: 9.09, water: 1504, animalImpact: 0, weight: 30 },
-  "jelly unsweetened": { co2: 6.88, water: 2118, animalImpact: 3, weight: 100 },
-  "chickpeas sweetened": { co2: 1.7, water: 2216, animalImpact: 2, weight: 200 },
-  "hummus paste": { co2: 5.52, water: 2163, animalImpact: 1, weight: 200 },
-  "amaranth powdered": { co2: 5.62, water: 2482, animalImpact: 2, weight: 10 },
-  "tuna concentrate": { co2: 6.05, water: 3687, animalImpact: 4, weight: 20 },
-  "cassava roasted": { co2: 7.08, water: 1681, animalImpact: 4, weight: 200 },
-  "black beans unsweetened": { co2: 1.57, water: 1549, animalImpact: 0, weight: 70 },
-  "gin grilled": { co2: 8.48, water: 2472, animalImpact: 0, weight: 70 },
-  "haddock sweetened": { co2: 5.83, water: 3716, animalImpact: 7, weight: 30 },
-  "olive oil sauce": { co2: 4.31, water: 1826, animalImpact: 1, weight: 70 },
-  "soy sauce dried": { co2: 1.48, water: 2026, animalImpact: 0, weight: 20 },
-  "apple cider vinegar sauce": { co2: 1.43, water: 438, animalImpact: 1, weight: 100 },
-  "cashew salted": { co2: 2.65, water: 8114, animalImpact: 1, weight: 70 },
-  "coconut oil grilled": { co2: 1.29, water: 565, animalImpact: 1, weight: 50 },
-  "pancake salted": { co2: 2.35, water: 714, animalImpact: 0, weight: 150 },
-  "carrot chopped": { co2: 0.58, water: 484, animalImpact: 0, weight: 30 },
-  "onion": { co2: 0.94, water: 430, animalImpact: 1, weight: 30 },
-  "apple powdered": { co2: 1.25, water: 635, animalImpact: 0, weight: 20 },
-  "amaranth oil": { co2: 3.78, water: 1596, animalImpact: 0, weight: 10 },
-  "bread flakes": { co2: 2.81, water: 2091, animalImpact: 1, weight: 20 },
-  "rice vinegar oil": { co2: 2.51, water: 2184, animalImpact: 2, weight: 10 },
-  "almond paste": { co2: 4.02, water: 6606, animalImpact: 1, weight: 50 },
-  "cake sweetened": { co2: 6.43, water: 2287, animalImpact: 0, weight: 50 },
-  "anchovy powdered": { co2: 6.0, water: 4416, animalImpact: 5, weight: 200 },
-  "sunflower oil sweetened": { co2: 3.32, water: 1433, animalImpact: 1, weight: 100 },
-  "avocado oil roasted": { co2: 5.05, water: 1645, animalImpact: 2, weight: 20 },
-  "waffle paste": { co2: 5.96, water: 1787, animalImpact: 3, weight: 10 },
-  "edamame minced": { co2: 1.31, water: 2292, animalImpact: 1, weight: 200 },
-  "ice cream salted": { co2: 7.72, water: 4236, animalImpact: 6, weight: 20 },
-  "bagel chopped": { co2: 2.94, water: 1996, animalImpact: 2, weight: 20 },
-  "vinegar flakes": { co2: 6.59, water: 2189, animalImpact: 2, weight: 100 },
-  "milk minced": { co2: 10.85, water: 2908, animalImpact: 6, weight: 200 },
-  "potato sweetened": { co2: 1.16, water: 405, animalImpact: 0, weight: 150 },
-  "olive oil grilled": { co2: 7.11, water: 1226, animalImpact: 0, weight: 200 },
-  "cracker extract": { co2: 5.96, water: 2121, animalImpact: 2, weight: 10 },
-  "black beans grilled": { co2: 1.72, water: 1931, animalImpact: 1, weight: 20 },
-  "onion powder oil": { co2: 0.92, water: 305, animalImpact: 1, weight: 100 },
-  "mustard salted (powdered)": { co2: 2.08, water: 312, animalImpact: 1, weight: 200 },
-  "celery sliced": { co2: 0.95, water: 448, animalImpact: 1, weight: 70 },
-  "tilapia grilled": { co2: 5.66, water: 5325, animalImpact: 5, weight: 200 },
-  "hot sauce salted": { co2: 1.61, water: 489, animalImpact: 1, weight: 10 },
-  "honey concentrate": { co2: 2.41, water: 1709, animalImpact: 0, weight: 100 },
-  "lentils": { co2: 2.0, water: 2264, animalImpact: 2, weight: 10 },
-  "pepper chopped": { co2: 0.96, water: 414, animalImpact: 1, weight: 70 },
-  "vinegar dried": { co2: 6.66, water: 2312, animalImpact: 2, weight: 100 },
-  "shrimp": { co2: 7.28, water: 4806, animalImpact: 4, weight: 150 },
-  "raspberry": { co2: 1.3, water: 302, animalImpact: 0, weight: 150 },
-  "walnut grilled": { co2: 2.82, water: 6709, animalImpact: 0, weight: 100 },
-  "tilapia unsweetened": { co2: 5.97, water: 5093, animalImpact: 5, weight: 20 },
-  "ketchup oil": { co2: 7.39, water: 1794, animalImpact: 0, weight: 20 },
-  "almond butter flakes": { co2: 10.62, water: 3367, animalImpact: 7, weight: 200 },
-  "pepper oil": { co2: 1.25, water: 469, animalImpact: 0, weight: 100 },
-  "cheese roasted": { co2: 9.96, water: 2955, animalImpact: 5, weight: 30 },
-  "peanut butter grilled": { co2: 12.4, water: 3228, animalImpact: 4, weight: 150 },
-  "alfredo powder": { co2: 3.22, water: 925, animalImpact: 1, weight: 30 },
-  "tomato roasted": { co2: 1.21, water: 264, animalImpact: 0, weight: 70 },
-  "cassava sauce": { co2: 2.35, water: 835, animalImpact: 0, weight: 20 },
-  "salmon oil (powdered)": { co2: 6.23, water: 3757, animalImpact: 2, weight: 150 },
-  "millet oil": { co2: 5.21, water: 1651, animalImpact: 2, weight: 70 },
-  "amaranth grilled": { co2: 7.8, water: 2290, animalImpact: 2, weight: 20 },
-  "coffee chopped": { co2: 8.93, water: 3454, animalImpact: 0, weight: 30 },
-  "orange flakes": { co2: 1.11, water: 599, animalImpact: 0, weight: 70 },
-  "cracker dried": { co2: 4.98, water: 2521, animalImpact: 3, weight: 100 },
-  "hazelnut sauce": { co2: 2.93, water: 9619, animalImpact: 1, weight: 100 },
-  "macadamia minced": { co2: 2.88, water: 6811, animalImpact: 1, weight: 70 },
-  "duck chopped": { co2: 6.39, water: 5070, animalImpact: 5, weight: 10 },
-  "sugar powdered": { co2: 1.48, water: 1562, animalImpact: 0, weight: 20 },
-  "teriyaki sauce extract": { co2: 2.25, water: 1282, animalImpact: 0, weight: 70 },
-  "onion dried": { co2: 1.26, water: 402, animalImpact: 0, weight: 30 },
-  "coriander minced": { co2: 2.03, water: 637, animalImpact: 3, weight: 200 },
-  "bread roasted": { co2: 2.66, water: 1791, animalImpact: 2, weight: 20 },
-  "barbecue sauce minced": { co2: 3.15, water: 1011, animalImpact: 0, weight: 30 },
-  "wheat sliced": { co2: 2.09, water: 1820, animalImpact: 2, weight: 20 },
-  "cod extract": { co2: 7.67, water: 4178, animalImpact: 5, weight: 150 },
-  "cucumber smoked": { co2: 0.71, water: 394, animalImpact: 0, weight: 100 },
-  "sweet potato oil": { co2: 0.9, water: 459, animalImpact: 0, weight: 50 },
-  "rye": { co2: 3.0, water: 1661, animalImpact: 0, weight: 20 },
-  "shrimp powder": { co2: 5.37, water: 4801, animalImpact: 6, weight: 20 },
-  "barley cured": { co2: 2.69, water: 2385, animalImpact: 0, weight: 200 },
-  "pork extract": { co2: 55.45, water: 20558, animalImpact: 10, weight: 200 },
-  "avocado oil paste": { co2: 4.39, water: 1556, animalImpact: 2, weight: 70 },
-  "sardine roasted": { co2: 6.06, water: 4290, animalImpact: 6, weight: 200 },
-  "mango chopped": { co2: 1.18, water: 569, animalImpact: 1, weight: 200 },
-  "salt unsweetened": { co2: 2.09, water: 831, animalImpact: 1, weight: 100 },
-  "whiskey sliced": { co2: 8.76, water: 2544, animalImpact: 1, weight: 10 },
-  "almond butter sauce": { co2: 6.54, water: 3461, animalImpact: 6, weight: 100 },
-  "soy sauce roasted": { co2: 1.42, water: 2089, animalImpact: 1, weight: 30 },
-  "cracker concentrate": { co2: 6.66, water: 1854, animalImpact: 3, weight: 70 },
-  "muffin minced": { co2: 5.13, water: 2332, animalImpact: 3, weight: 200 },
-  "salmon salted": { co2: 5.12, water: 3154, animalImpact: 6, weight: 50 },
-  "scallops powder": { co2: 6.17, water: 5021, animalImpact: 6, weight: 20 },
-  "pizza powder": { co2: 7.15, water: 1963, animalImpact: 2, weight: 30 },
-  "chicken chopped": { co2: 7.13, water: 4884, animalImpact: 6, weight: 30 },
-  "brownie concentrate": { co2: 5.68, water: 1763, animalImpact: 2, weight: 30 },
-  "cocoa dried": { co2: 8.0, water: 2732, animalImpact: 0, weight: 100 },
-  "sorghum powdered": { co2: 2.34, water: 1636, animalImpact: 0, weight: 100 },
-  "tuna": { co2: 4.81, water: 5141, animalImpact: 4, weight: 200 },
-  "gin concentrate": { co2: 11.17, water: 3057, animalImpact: 0, weight: 100 },
-  "seitan dried": { co2: 1.04, water: 1858, animalImpact: 1, weight: 70 },
-  "molasses dried (powdered)": { co2: 2.08, water: 2144, animalImpact: 0, weight: 30 },
-  "paprika powdered": { co2: 2.25, water: 679, animalImpact: 0, weight: 20 },
-  "palm oil cured": { co2: 4.3, water: 1599, animalImpact: 1, weight: 20 },
-  "salt chopped": { co2: 2.4, water: 645, animalImpact: 1, weight: 10 },
-  "donut minced": { co2: 5.42, water: 1482, animalImpact: 1, weight: 20 },
-  "yam smoked": { co2: 3.97, water: 2380, animalImpact: 1, weight: 30 },
-  "waffle roasted": { co2: 6.34, water: 2047, animalImpact: 2, weight: 150 },
-  "hummus concentrate": { co2: 6.12, water: 1412, animalImpact: 1, weight: 10 },
-  "beef smoked": { co2: 53.1, water: 17729, animalImpact: 10, weight: 70 },
-  "celery sweetened": { co2: 1.15, water: 404, animalImpact: 0, weight: 70 },
-  "cabbage sauce": { co2: 1.38, water: 507, animalImpact: 1, weight: 150 },
-  "teriyaki sauce (powdered)": { co2: 3.67, water: 1091, animalImpact: 1, weight: 200 },
-  "ginger sliced": { co2: 9.59, water: 2826, animalImpact: 0, weight: 100 },
-  "maple syrup powdered": { co2: 2.03, water: 1954, animalImpact: 1, weight: 10 },
-  "sardine": { co2: 5.22, water: 3451, animalImpact: 4, weight: 50 },
-  "peanut powdered": { co2: 1.62, water: 2250, animalImpact: 2, weight: 20 },
-  "tilapia paste": { co2: 5.02, water: 4849, animalImpact: 6, weight: 50 },
-  "honey powder": { co2: 2.04, water: 2358, animalImpact: 2, weight: 150 },
-  "cocoa grilled": { co2: 6.74, water: 2567, animalImpact: 0, weight: 200 },
-  "donut sweetened": { co2: 7.01, water: 2797, animalImpact: 1, weight: 200 },
-  "banana powder": { co2: 1.06, water: 649, animalImpact: 3, weight: 150 },
-  "bagel flakes": { co2: 2.81, water: 2342, animalImpact: 1, weight: 150 },
-  "rye sauce": { co2: 2.62, water: 2343, animalImpact: 1, weight: 100 },
-  "rice vinegar smoked": { co2: 2.76, water: 1830, animalImpact: 3, weight: 150 },
-  "canola oil grilled": { co2: 5.59, water: 1153, animalImpact: 1, weight: 200 },
-  "goat sauce": { co2: 62.22, water: 13910, animalImpact: 10, weight: 150 },
-  "pizza powdered": { co2: 2.8, water: 1469, animalImpact: 2, weight: 30 },
-  "crab cured (powdered)": { co2: 6.54, water: 5379, animalImpact: 5, weight: 50 },
-  "pork salted": { co2: 49.66, water: 17733, animalImpact: 10, weight: 70 },
-  "salmon cured": { co2: 6.22, water: 4729, animalImpact: 5, weight: 200 },
-  "ginger flakes": { co2: 8.33, water: 2193, animalImpact: 0, weight: 10 },
-  "cake flakes": { co2: 5.68, water: 2199, animalImpact: 2, weight: 100 },
-  "cod powdered": { co2: 6.08, water: 3445, animalImpact: 5, weight: 100 },
-  "broccoli paste": { co2: 0.94, water: 462, animalImpact: 4, weight: 10 },
-  "pear grilled": { co2: 1.41, water: 1994, animalImpact: 0, weight: 100 },
-  "cider extract": { co2: 9.45, water: 3013, animalImpact: 0, weight: 50 },
-  "rabbit roasted": { co2: 43.0, water: 16793, animalImpact: 10, weight: 100 },
-  "quinoa smoked": { co2: 1.97, water: 2723, animalImpact: 1, weight: 20 },
-  "celery chopped (powdered)": { co2: 0.97, water: 496, animalImpact: 2, weight: 200 },
-  "cappuccino oil": { co2: 4.44, water: 1204, animalImpact: 0, weight: 200 },
-  "onion dried (powdered)": { co2: 0.88, water: 510, animalImpact: 1, weight: 70 },
-  "cream dried": { co2: 9.22, water: 3256, animalImpact: 7, weight: 30 },
-  "mustard sweetened": { co2: 3.19, water: 851, animalImpact: 0, weight: 10 },
-  "bell pepper flakes (powdered)": { co2: 1.08, water: 375, animalImpact: 1, weight: 70 },
-  "tahini": { co2: 7.62, water: 1922, animalImpact: 3, weight: 50 },
-  "muffin sweetened": { co2: 5.92, water: 2078, animalImpact: 1, weight: 30 },
-  "salt roasted": { co2: 2.58, water: 927, animalImpact: 0, weight: 100 },
-  "pancake sliced": { co2: 6.15, water: 1601, animalImpact: 2, weight: 70 },
-  "jam grilled": { co2: 7.38, water: 1986, animalImpact: 4, weight: 150 },
-  "haddock paste": { co2: 5.53, water: 3508, animalImpact: 5, weight: 20 },
-  "cream smoked": { co2: 9.92, water: 1819, animalImpact: 4, weight: 150 },
-  "pork chopped": { co2: 63.52, water: 13235, animalImpact: 10, weight: 10 },
-    "milk": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "whey": { co2: 0.9, water: 950, animalImpact: 5 },
-  "casein": { co2: 0.8, water: 900, animalImpact: 5 },
-  "sodium caseinate": { co2: 0.8, water: 900, animalImpact: 5 },
-  "lactalbumin": { co2: 0.8, water: 900, animalImpact: 5 },
-  "lactoglobulin": { co2: 0.8, water: 900, animalImpact: 5 },
-  "milk solids": { co2: 0.9, water: 950, animalImpact: 5 },
-  "milk fat": { co2: 0.9, water: 950, animalImpact: 5 },
-  "butter": { co2: 1.2, water: 1200, animalImpact: 5 },
-  "ghee": { co2: 1.2, water: 1200, animalImpact: 5 },
-  "cream": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "butterfat": { co2: 1.2, water: 1200, animalImpact: 5 },
-  "buttermilk": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "curds": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "yogurt": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "cheese": { co2: 1.5, water: 1500, animalImpact: 5 },
-  "ricotta": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "paneer": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "kefir": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "ice cream": { co2: 1.2, water: 1200, animalImpact: 5 },
-  "sour cream": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "whole egg": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "egg white": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "egg yolk": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "albumin": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "ovomucoid": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "ovalbumin": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "egg powder": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "egg lecithin": { co2: 1.0, water: 1000, animalImpact: 5 },
-  "egg albumin": { co2: 1.0, water: 1000, animalImpact: 5 },
-
-    "beetroot":    { co2: 0.4,  water: 500,  animalImpact: 1, weight: 100 },
-  "radish":      { co2: 0.3,  water: 200,  animalImpact: 1, weight: 100 },
-  "turnip":      { co2: 0.35, water: 300,  animalImpact: 1, weight: 100 },
-  "yam":         { co2: 0.5,  water: 600,  animalImpact: 1, weight: 100 },
-  "taro":        { co2: 0.6,  water: 400,  animalImpact: 1, weight: 100 },
-  "lotus root":  { co2: 0.7,  water: 450,  animalImpact: 1, weight: 100 },
-  "cassava":     { co2: 0.8,  water: 250,  animalImpact: 1, weight: 100 },
-  "yam powder":  { co2: 6.51, water: 1917, animalImpact: 1, weight: 200 },
-
-  "navy beans":  { co2: 1.6,  water: 1700, animalImpact: 1, weight: 100 },
-  "mung beans":  { co2: 1.2,  water: 1100, animalImpact: 1, weight: 100 },
-  "adzuki":      { co2: 1.5,  water: 1300, animalImpact: 1, weight: 100 },
-
-  "sunflower oil":      { co2: 3.3,  water: 2100, animalImpact: 1, weight: 10 },
-  "sunflower oil roasted": { co2: 3.6, water: 2200, animalImpact: 1, weight: 10 },
-  "sunflower oil powdered": { co2: 4.0, water: 2300, animalImpact: 1, weight: 10 },
-  "almond oil":         { co2: 2.92, water: 7809, animalImpact: 1, weight: 10 },
-  "avocado oil":        { co2: 5.24, water: 1108, animalImpact: 1, weight: 10 },
-  "coconut oil":        { co2: 1.3,  water: 517,  animalImpact: 0, weight: 10 },
-  "palm oil":           { co2: 8.5,  water: 5000, animalImpact: 5, weight: 10 },
-  "olive oil":          { co2: 5.1,  water: 1400, animalImpact: 1, weight: 10 },
-  "canola oil":         { co2: 3.7,  water: 2300, animalImpact: 1, weight: 10 },
-  "rice oil":           { co2: 2.87, water: 2010, animalImpact: 0, weight: 10 },
-
-  "brown sugar":        { co2: 2.07, water: 1245, animalImpact: 1, weight: 50 },
-  "maple syrup":        { co2: 2.03, water: 1856, animalImpact: 0, weight: 20 },
-  "agave syrup":        { co2: 2.2,  water: 1600, animalImpact: 0, weight: 20 },
-  "molasses":           { co2: 1.8,  water: 2500, animalImpact: 1, weight: 10 },
-
-  "nutmeg":             { co2: 1.64, water: 629,  animalImpact: 1, weight: 5 },
-  "cumin":              { co2: 1.72, water: 652,  animalImpact: 1, weight: 5 },
-  "cardamom":           { co2: 1.96, water: 573,  animalImpact: 0, weight: 5 },
-  "turmeric powder":    { co2: 2.26, water: 791,  animalImpact: 0, weight: 10 },
-  "ginger powder":      { co2: 1.2,  water: 500,  animalImpact: 0, weight: 5 },
-
-  "fish sauce":         { co2: 4.0,  water: 1400, animalImpact: 4, weight: 10 },
-  "anchovy paste":      { co2: 5.0,  water: 1500, animalImpact: 5, weight: 10 },
-  "bbq sauce":          { co2: 3.5,  water: 1100, animalImpact: 1, weight: 20 },
-  "sriracha":           { co2: 2.1,  water: 900,  animalImpact: 0, weight: 10 },
-
-  "gelatin":            { co2: 20.0, water: 5000, animalImpact: 8, weight: 10 },
-  "isinglass":          { co2: 8.0,  water: 2000, animalImpact: 6, weight: 5 },
-  "carmine":            { co2: 15.0, water: 3000, animalImpact: 7, weight: 1 },
-  "cochineal":          { co2: 15.0, water: 3000, animalImpact: 7, weight: 1 },
-  "l-cysteine":         { co2: 5.0,  water: 800,  animalImpact: 4, weight: 1 },
-  "rennet":             { co2: 12.0, water: 2000, animalImpact: 7, weight: 1 },
-  "lanolin":            { co2: 8.0,  water: 1200, animalImpact: 5, weight: 1 },
-  "glycerin (animal)":  { co2: 6.0,  water: 1000, animalImpact: 4, weight: 1 },
-  "mono- and diglycerides": { co2: 7.0, water: 1200, animalImpact: 3, weight: 1 },
-
-  "royal jelly":        { co2: 6.0,  water: 800,  animalImpact: 6, weight: 1 },
-  "bee pollen":         { co2: 2.5,  water: 700,  animalImpact: 3, weight: 1 },
-  "beeswax":            { co2: 6.0,  water: 900,  animalImpact: 4, weight: 1 },
-
-  "whey":               { co2: 4.0,  water: 1200, animalImpact: 5, weight: 20 },
-  "casein":             { co2: 5.5,  water: 1500, animalImpact: 5, weight: 10 },
-  "milk solids":        { co2: 6.0,  water: 1400, animalImpact: 5, weight: 20 },
-  "milk fat":           { co2: 6.0,  water: 1400, animalImpact: 5, weight: 10 },
-
-  "milk dried":         { co2: 6.61, water: 3753, animalImpact: 5, weight: 70 },
-  "milk evaporated":    { co2: 3.0,  water: 1000, animalImpact: 3, weight: 100 },
-  "cream":              { co2: 5.0,  water: 1800, animalImpact: 4, weight: 30 },
-  "butterfat":          { co2: 11.9, water: 5553, animalImpact: 6, weight: 10 },
-
-  "liver":              { co2: 20.0, water: 9000, animalImpact: 8, weight: 100 },
-  "heart":              { co2: 18.0, water: 8500, animalImpact: 7, weight: 100 },
-  "kidney":             { co2: 18.0, water: 8500, animalImpact: 7, weight: 100 },
-  "lard":               { co2: 10.0, water: 5000, animalImpact: 6, weight: 10 },
-  "tallow":             { co2: 10.0, water: 5000, animalImpact: 6, weight: 10 },
-  "suet":               { co2: 10.0, water: 5000, animalImpact: 6, weight: 10 },
-  "camel":              { co2: 22.0, water: 10000, animalImpact: 8, weight: 150 },
-
-  "mussel":             { co2: 2.0,  water: 1200, animalImpact: 3, weight: 100 },
-  "oyster":             { co2: 1.8,  water: 1000, animalImpact: 3, weight: 100 },
-  "catfish":            { co2: 4.5,  water: 2000, animalImpact: 4, weight: 150 },
-  "eel":                { co2: 6.0,  water: 3000, animalImpact: 5, weight: 100 },
-  "swordfish":          { co2: 8.0,  water: 3500, animalImpact: 6, weight: 150 },
-
-  "vodka":              { co2: 9.44, water: 3415, animalImpact: 0, weight: 30 },
-  "rum":                { co2: 7.14, water: 3154, animalImpact: 0, weight: 30 },
-  "whiskey":            { co2: 8.06, water: 3356, animalImpact: 0, weight: 30 },
-
-  "natural flavor":     { co2: 2.5,  water: 900,  animalImpact: 0, weight: 1 },
-  "artificial flavor":  { co2: 2.0,  water: 800,  animalImpact: 0, weight: 1 },
-  "pgpr":               { co2: 3.0,  water: 900,  animalImpact: 0, weight: 1 }, 
-  "lecithin (soy)":     { co2: 1.8,  water: 1800, animalImpact: 0, weight: 1 },
-
-  "beef": { co2: 27, water: 15400, animalImpact: 10 },
-  "veal": { co2: 20, water: 12000, animalImpact: 10 },
-  "lamb": { co2: 39, water: 20000, animalImpact: 10 },
-  "pork": { co2: 12, water: 6000, animalImpact: 10 },
-  "mutton": { co2: 39, water: 20000, animalImpact: 10 },
-  "chicken": { co2: 6.9, water: 4300, animalImpact: 10 },
-  "turkey": { co2: 10, water: 5000, animalImpact: 10 },
-  "duck": { co2: 10, water: 5000, animalImpact: 10 },
-  "goose": { co2: 12, water: 6000, animalImpact: 10 },
-  "rabbit": { co2: 6, water: 4000, animalImpact: 10 },
-  "venison": { co2: 12, water: 6000, animalImpact: 10 },
-  "liver": { co2: 8, water: 5000, animalImpact: 10 },
-  "heart": { co2: 8, water: 5000, animalImpact: 10 },
-  "kidney": { co2: 8, water: 5000, animalImpact: 10 },
-  "game meat": { co2: 15, water: 7000, animalImpact: 10 },
-  "lard": { co2: 12, water: 6000, animalImpact: 10 },
-  "tallow": { co2: 12, water: 6000, animalImpact: 10 },
-  "suet": { co2: 12, water: 6000, animalImpact: 10 },
-  "butterfat": { co2: 12, water: 6000, animalImpact: 10 },
-
-  "fish": { co2: 6, water: 2000, animalImpact: 10 },
-  "anchovy": { co2: 6, water: 2000, animalImpact: 10 },
-  "sardine": { co2: 6, water: 2000, animalImpact: 10 },
-  "mackerel": { co2: 6, water: 2000, animalImpact: 10 },
-  "herring": { co2: 6, water: 2000, animalImpact: 10 },
-  "cod": { co2: 6, water: 2000, animalImpact: 10 },
-  "tuna": { co2: 6, water: 2000, animalImpact: 10 },
-  "shrimp": { co2: 6, water: 2000, animalImpact: 10 },
-  "lobster": { co2: 6, water: 2000, animalImpact: 10 },
-  "crab": { co2: 6, water: 2000, animalImpact: 10 },
-  "mussel": { co2: 6, water: 2000, animalImpact: 10 },
-  "clam": { co2: 6, water: 2000, animalImpact: 10 },
-  "oyster": { co2: 6, water: 2000, animalImpact: 10 },
-  "scallop": { co2: 6, water: 2000, animalImpact: 10 },
-  "fish sauce": { co2: 6, water: 2000, animalImpact: 10 },
-  "anchovy paste": { co2: 6, water: 2000, animalImpact: 10 },
-  "isinglass": { co2: 6, water: 2000, animalImpact: 10 },
-
-  "honey": { co2: 0.5, water: 100, animalImpact: 5 },
-  "royal jelly": { co2: 0.5, water: 100, animalImpact: 5 },
-  "bee pollen": { co2: 0.5, water: 100, animalImpact: 5 },
-  "beeswax": { co2: 0.5, water: 100, animalImpact: 5 },
-
-  "gelatin": { co2: 1, water: 500, animalImpact: 5 },
-  "carmine": { co2: 1, water: 500, animalImpact: 5 },
-  "cochineal": { co2: 1, water: 500, animalImpact: 5 },
-  "l-cysteine": { co2: 1, water: 500, animalImpact: 5 },
-  "stearic acid": { co2: 1, water: 500, animalImpact: 5 },
-  "lanolin": { co2: 1, water: 500, animalImpact: 5 },
-  "glycerin": { co2: 1, water: 500, animalImpact: 5 },
-  "rennet": { co2: 1, water: 500, animalImpact: 5 },
-  "mono- and diglycerides": { co2: 1, water: 500, animalImpact: 5 },
-  "vitamin d3": { co2: 1, water: 500, animalImpact: 5 },
-  "omega-3 fatty acids": { co2: 1, water: 500, animalImpact: 5 },
-  "camel": { co2: 20, water: 5000, animalImpact: 8 },
-  "rabbit": { co2: 3.86, water: 4000, animalImpact: 3 },
-  "hare": { co2: 3.86, water: 4000, animalImpact: 3 },
-
-  "peanut": { co2: 1.5, water: 500, animalImpact: 0 },
-"almond": { co2: 2.5, water: 1200, animalImpact: 0 },
-"cashew": { co2: 2.8, water: 900, animalImpact: 0 },
-"walnut": { co2: 2.2, water: 800, animalImpact: 0 },
-"pecan": { co2: 2.1, water: 1000, animalImpact: 0 },
-"hazelnut": { co2: 2.3, water: 900, animalImpact: 0 },
-
-  "catfish": { co2: 3.5, water: 3000, animalImpact: 5 },
-  "eel": { co2: 3.5, water: 3000, animalImpact: 5 },
-  "swordfish": { co2: 9.5, water: 8000, animalImpact: 7 },
-
-"shrimp": { co2: 0, water: 0, animalImpact: 10 },
-"prawn": { co2: 0, water: 0, animalImpact: 10 },
-"crab": { co2: 0, water: 0, animalImpact: 10 },
-"lobster": { co2: 0, water: 0, animalImpact: 10 },
-"crayfish": { co2: 0, water: 0, animalImpact: 10 },
-"crawfish": { co2: 0, water: 0, animalImpact: 10 },
-"langoustine": { co2: 0, water: 0, animalImpact: 10 },
-"krill": { co2: 0, water: 0, animalImpact: 10 },
-"mantis shrimp": { co2: 0, water: 0, animalImpact: 10 },
-"barnacle": { co2: 0, water: 0, animalImpact: 10 },
-
-"clam": { co2: 0, water: 0, animalImpact: 8 },
-"mussel": { co2: 0, water: 0, animalImpact: 8 },
-"oyster": { co2: 0, water: 0, animalImpact: 8 },
-"scallop": { co2: 0, water: 0, animalImpact: 8 },
-"squid": { co2: 0, water: 0, animalImpact: 8 },
-"octopus": { co2: 0, water: 0, animalImpact: 8 },
-"cuttlefish": { co2: 0, water: 0, animalImpact: 8 },
-"whelk": { co2: 0, water: 0, animalImpact: 8 },
-"abalone": { co2: 0, water: 0, animalImpact: 8 },
-
-"shrimp powder": { co2: 0, water: 0, animalImpact: 10 },
-"crab extract": { co2: 0, water: 0, animalImpact: 10 },
-"fish sauce": { co2: 0, water: 0, animalImpact: 10 },
-"shellfish": { co2: 5.0, water: 200, animalImpact: 8 },
-
-"ham": { co2: 6.5, water: 4900, animalImpact: 8 },
-"lard": { co2: 5.5, water: 4200, animalImpact: 7 },
-"gelatin (from non-halal sources)": { co2: 3.2, water: 1000, animalImpact: 6 },
-"alcohol": { co2: 2.0, water: 1500, animalImpact: 2 },
-"beer": { co2: 2.1, water: 1400, animalImpact: 2 },
-"carmine": { co2: 1.0, water: 200, animalImpact: 4 },
-"cochineal": { co2: 1.1, water: 250, animalImpact: 4 }
-
-    };
-
-    
-    const userAllergens = JSON.parse(localStorage.getItem('userAllergens')) || {};
-
-    const allergenMap = {
-      gluten: ["wheat", "barley", "rye", "malt"],
-      dairy: ["milk", "cheese", "butter", "cream", "yogurt", "whey"],
-      nuts: ["almond", "cashew", "peanut", "walnut", "hazelnut", "pecan"],
-      soy: ["soy", "soybean", "soy lecithin", "edamame"],
-      eggs: ["egg", "albumin", "egg white", "egg yolk"],
-      shellfish: ["shrimp", "prawn", "crab", "lobster", "crayfish", "crawfish", "langoustine", "krill", "mantis shrimp", "barnacle","clam", "mussel", "oyster", "scallop", "squid", "octopus", "cuttlefish", "whelk", "abalone","shrimp powder", "crab extract", "fish sauce" , "shellfish"],
-  peanuts: ["peanut"],
-  treeNuts: ["almond", "cashew", "walnut", "hazelnut", "pecan"]
-    };
-
-    const nonVegan = ["milk", "whey", "casein", "sodium caseinate", "lactalbumin", "lactoglobulin", "milk solids", "milk fat", "butter", "ghee", "cream", "butterfat", "buttermilk", "curds", "yogurt", "cheese", "ricotta", "paneer", "kefir", "ice cream", "sour cream", "whole egg", "egg white", "egg yolk", "albumin", "ovomucoid", "ovalbumin", "egg powder", "egg lecithin", "egg albumin", "beef", "veal", "lamb", "pork", "mutton", "chicken", "turkey", "duck", "goose", "rabbit", "venison", "liver", "heart", "kidney", "game meat", "lard", "tallow", "suet", "butterfat", "fish", "anchovy", "sardine", "mackerel", "herring", "cod", "tuna", "shrimp", "lobster", "crab", "mussel", "clam", "oyster", "scallop", "fish sauce", "anchovy paste", "isinglass", "honey", "royal jelly", "bee pollen", "beeswax", "gelatin", "carmine", "cochineal", "isinglass", "l-cysteine", "stearic acid", "lanolin", "glycerin", "casein", "tallow", "rennet", "mono- and diglycerides", "vitamin d3", "omega-3 fatty acids" ];
-const nonKosher = ["pork", "bacon", "ham", "lard", "camel", "rabbit", "hare", "shellfish", "lobster", "crab", "shrimp", "mussel", "clam", "oyster", "scallop", "catfish", "eel", "swordfish", "gelatin", "l-cysteine", "carmine", "cochineal", "rennet", "lanolin", "glycerin", "mono- and diglycerides" ];    
-const nonJain = [ "potato", "sweet potato", "yam", "white yam", "cassava", "tapioca", "taro", "arbi", "arrowroot", "beet", "beetroot", "turnip", "rutabaga", "radish", "daikon", "kohlrabi", "salsify", "onion", "garlic", "shallot", "leek", "scallion bulb", "ginger", "fresh turmeric", "turmeric root", "lotus root", "yam bean", "groundnut", "peanut (root-type?)", "taopioca", "chive bulb", "spring onion bulb", "fennel bulb", "mushroom", "fungi", "yeast", "fermented food", "vinegar", "wine", "beer", "kombucha", "pickle", "saurkraut", "soy sauce (fermented)", "tempeh (fermented soybean)", "fermented bean curd", "meat", "chicken", "fish", "seafood", "shrimp", "crab", "lobster", "egg", "eggs", "honey", "gelatin", "carmine", "cochineal", "brinjal", "eggplant", "banana stem", "banana flower", "sprouts", "sprouted pulses", "unknown fruits", "many-seeded vegetables", "leafy vegetable after falgun (special period)",  "stale food", "leftovers", "food kept overnight", "yam (surang)", "vajra yam", "bhumikand", "khirsua yam", "theg", "ratalu", "pindaloo", "galo", "kachuro", "virali creeper", "lodhak", "kisalaya", "vathula bhaji" ];   
-const nonVegetarian = ["beef", "veal", "pork", "bacon", "ham", "lamb", "goat", "mutton", "chicken", "turkey", "duck", "goose", "rabbit", "venison", "fish", "tuna", "salmon", "anchovy", "cod", "mackerel", "sardine", "shrimp", "lobster", "crab", "clam", "mussel", "oyster", "scallop", "squid", "octopus", "gelatin", "rennet", "carmine", "cochineal", "isinglass", "lard", "tallow", ]; 
-const nonPescatarian = ["beef", "veal", "pork", "bacon", "ham", "lamb", "goat", "mutton", "chicken", "turkey", "duck", "goose", "rabbit", "venison", "gelatin", "rennet", "carmine", "cochineal", "isinglass", "lard", "tallow", ];
-const nonHalal = [
-  "pork", "bacon", "ham", "lard", "gelatin (from non-halal sources)", "alcohol", 
-  "wine", "beer", "carmine", "cochineal"
-];
-
-async function extractWithOpenAI(text) {
-  const response = await fetch("http://localhost:5000/extract-ingredients", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
-    
-  });
-  const data = await response.json();
-  return data.ingredients;
-}
-console.log("Sending text length:", text.length);
-
-
-function calculateImpact(items) {
-  if (!items || items.length === 0) {
-    document.getElementById("results").innerHTML = "<p>No known ingredients detected.</p>";
-    return;
-  }
-
-  let totalCO2 = 0, totalWater = 0, totalAnimalImpact = 0;
-
-  for (let item of items) {
-    if (!ingredientData[item]) continue;
-    totalCO2 += ingredientData[item].co2 || 0;
-    totalWater += ingredientData[item].water || 0;
-    totalAnimalImpact += ingredientData[item].animalImpact || 0;
-  }
-
- document.getElementById("results").innerHTML = `
-  <div class="result-card">
-    <h2>🌍 Environmental Impact</h2>
-    <p><strong>Ingredients detected:</strong> ${items.join(", ")}</p>
-    <p><strong>Total CO₂ emissions per 100g:</strong> ${totalCO2.toFixed(2)} kg</p>
-    <p><strong>Water usage per 100g:</strong> ${totalWater.toLocaleString()} L</p>
-    <p><strong>Animal impact score:</strong> ${totalAnimalImpact.toFixed(1)} / ${items.length * 10}</p>
+  <!-- Camera Modal -->
+  <div id="cameraModal">
+    <div class="camera-container">
+      <h2>Camera Capture</h2>
+      <video id="cameraFeed" autoplay playsinline></video>
+      <canvas id="barcodeCanvas"></canvas>
+      <div class="camera-controls">
+        <button onclick="capturePhoto()">📸 Capture</button>
+        <button onclick="closeCamera()" style="background:#e53e3e;">✖ Cancel</button>
+      </div>
+      <p id="barcodeResult" style="margin-top:10px; color:#4CAF50; font-weight:bold;"></p>
+    </div>
   </div>
-`;
-}
 
-function canEatProduct(ingredients) {
-  const lowerIngredients = ingredients.map(i => i.toLowerCase());
-  let blockedAllergens = [];
+  <script>
+    const userAllergens = JSON.parse(localStorage.getItem('userAllergens')) || {};
+    console.log("User allergens from localStorage:", userAllergens);
 
-  for (const allergen in userAllergens) {
-    if (userAllergens[allergen] && allergenMap[allergen]) {
-      const matches = lowerIngredients.filter(ing => allergenMap[allergen].includes(ing));
-      if (matches.length) blockedAllergens.push({ type: allergen, ingredients: matches });
-    }
-  }
+    let cameraStream = null;
+    let barcodeInterval = null;
 
-  if (userAllergens.vegan) {
-    const matches = lowerIngredients.filter(ing => nonVegan.includes(ing));
-    if (matches.length) blockedAllergens.push({ type: "vegan", ingredients: matches });
-  }
-  if (userAllergens.halal) {
-    const matches = lowerIngredients.filter(ing => nonHalal.includes(ing));
-    if (matches.length) blockedAllergens.push({ type: "halal", ingredients: matches });
-  }
-  if (userAllergens.kosher) {
-    const matches = lowerIngredients.filter(ing => nonKosher.includes(ing));
-    if (matches.length) blockedAllergens.push({ type: "kosher", ingredients: matches });
-  }
-  if (userAllergens.jain) {
-    const matches = lowerIngredients.filter(ing => nonJain.includes(ing));
-    if (matches.length) blockedAllergens.push({ type: "jain", ingredients: matches });
-  }
-  if (userAllergens.vegetarian) {
-    const matches = lowerIngredients.filter(ing => nonVegetarian.includes(ing));
-    if (matches.length) blockedAllergens.push({ type: "vegetarian", ingredients: matches });
-  }
-  if (userAllergens.pescatarian) {
-    const matches = lowerIngredients.filter(ing => nonPescatarian.includes(ing));
-    if (matches.length) blockedAllergens.push({ type: "pescatarian", ingredients: matches });
-  }
-
-  return blockedAllergens.length === 0
-    ? { result: true, blocked: [] }
-    : { result: false, blocked: blockedAllergens };
-}
-
-function showAllergenResult(ingredients) {
-  const check = canEatProduct(ingredients);
-  const resultDiv = document.getElementById("allergenResult");
-
-  if (check.result) {
-  resultDiv.textContent = "✅ You can eat this product!";
-  resultDiv.className = "green";
-} else {
-  const messages = check.blocked.map(b => `${b.type} (${b.ingredients.join(", ")})`);
-  resultDiv.textContent = `⚠️ Avoid this product. Issues: ${messages.join("; ")}`;
-  resultDiv.className = "red";
-}
-}
-function extractIngredients(text) {
-  let cleaned = text.toLowerCase().replace(/[^a-z\s]/g, " ");
-
-  const words = cleaned.split(/\s+/).filter(w => w);
-
-  const detected = new Set();
-
-  const descriptors = ["chopped","roasted","refined","dried","powdered","organic","natural","fat"];
-  function removeDescriptors(phrase) {
-    for (let d of descriptors) phrase = phrase.replace(new RegExp(`\\b${d}\\b`, "g"), "");
-    return phrase.replace(/\s+/g, " ").trim();
-  }
-
-  const multiWordIngredients = Object.keys(ingredientData).filter(k => k.includes(" "));
-  for (let mw of multiWordIngredients) {
-    let canonical = removeDescriptors(mw);
-    if (cleaned.includes(canonical)) detected.add(mw); 
-  }
-
-  for (let w of words) {
-    let norm = w.trim();
-    if (ingredientData[norm]) detected.add(norm);
-  }
-
-  return Array.from(detected);
-}
-
-async function runOCR() {
-  const image = document.getElementById("imageInput").files[0];
-  if (!image) {
-    alert("Please upload an image first.");
-    return;
-  }
-
-  const ocrTextElement = document.getElementById("ocrText");
-ocrTextElement.innerHTML = '<div class="loader"></div><p>Scanning image... please wait.</p>';
-
-  try {
-    const { data: { text } } = await Tesseract.recognize(image, 'eng', {
-      logger: info => console.log(info)
-    });
-
-    console.log("🧾 Raw OCR Text:", text);
-
-    let cleanedText = text
-      .replace(/\s+/g, ' ')              
-      .replace(/ingredients?[:\-]?\s*/i, '') 
-      .trim();
-cleanedText = await translateText(cleanedText, "en");
-console.log("🌐 Translated Text:", cleanedText);
-
-
-    if (!cleanedText || cleanedText.length < 2) {
-      ocrTextElement.innerText = "❌ Failed to extract readable text. Try another image.";
-      return;
-    }
-
-    ocrTextElement.innerText = `✅ Text Detected:\n${cleanedText}`;
-
-    let ingredients = extractIngredients(cleanedText);
-    ingredients = [...new Set(ingredients.map(i => i.trim()).filter(i => i))];
-
-    if (!ingredients.length) {
-      console.warn("⚠️ No known ingredients detected.");
-    }
-
-    calculateImpact(ingredients);
-    showAllergenResult(ingredients);
-    displaySustainability(ingredients);
-
-  } catch (err) {
-    console.error("OCR Error:", err);
-
-    const currentText = document.getElementById("ocrText").innerText;
-    if (!currentText.includes("✅ Detected Ingredients")) {
-      ocrTextElement.innerText = "❌ Error processing image. Please retry.";
-    }
-  }
-}
-function calculateSustainabilityScore(items) {
-  if (items.length === 0) return 0;
-  let co2=0, water=0, animal=0;
-  for (let item of items) {
-    const data = ingredientData[item];
-    if (!data) continue;
-    co2 += data.co2||0;
-    water += data.water||0;
-    animal += data.animalImpact||0;
-  }
-}
-
-function displaySustainability(items) {
-  const score = calculateSustainabilityScore(items);
-  const canvas = document.getElementById("sustainabilityCircle");
-  const ctx = canvas.getContext("2d");
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-  const radius = 65;
-
- 
-  function interpolateColor(color1, color2, factor) {
-    const c1 = color1.match(/\w\w/g).map((x) => parseInt(x, 16));
-    const c2 = color2.match(/\w\w/g).map((x) => parseInt(x, 16));
-    const result = c1.map((v, i) => Math.round(v + factor * (c2[i] - v)));
-    return `#${result.map((x) => x.toString(16).padStart(2, "0")).join("")}`;
-  }
-
-
-  let color;
-  if (score <= 50) {
-    color = interpolateColor("388e3c", "fbc02d", score / 50);
-  } else {
-    color = interpolateColor("fbc02d", "d32f2f", (score - 50) / 50);
-  }
-
-  // Animation setup
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  let current = 0;
-  const target = (score / 100) * 2 * Math.PI;
-
-  function drawFrame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "#e0e0e0";
-    ctx.lineWidth = 10;
-    ctx.stroke();
-
-
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + current);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 10;
-    ctx.lineCap = "round";
-    ctx.stroke();
-
- 
-    ctx.font = "bold 26px Poppins, sans-serif";
-    ctx.fillStyle = color;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(`${Math.round((current / (2 * Math.PI)) * 100)}%`, centerX, centerY);
-
-    if (current < target) {
-      current += 0.05;
-      requestAnimationFrame(drawFrame);
-    }
-  }
-
-  drawFrame();
-
-
-  const textDiv = document.getElementById("sustainabilityText");
-  textDiv.textContent = `🌿 Environmental Impact Score: ${score}%`;
-  textDiv.style.color = color;
-}
-
-function fadeIn(el) {
-  el.style.opacity = 0;
-  el.style.transition = "opacity 0.6s ease";
-  requestAnimationFrame(() => {
-    el.style.opacity = 1;
-  });
-}
-
-function createComparisonChart(userScore) {
-  const ctx = document.getElementById('comparisonChart').getContext('2d');
-
-  if (window._comparisonChart) {
-    window._comparisonChart.destroy();
-    window._comparisonChart = null;
-  }
-
-  const baseline = 45;
-
-  // color for user's score (green→yellow→red)
-  const getColor = (v) => {
-    if (v <= 33) return '#66bb6a';
-    if (v <= 66) return '#fbc02d';
-    return '#d32f2f';
-  };
-
-  window._comparisonChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['This Product', 'Average Product'],
-      datasets: [{
-        label: 'Environmental Score (%)',
-        data: [userScore, baseline],
-        backgroundColor: [getColor(userScore), '#90a4ae'],
-        borderRadius: 8,
-        barThickness: 36
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: { stepSize: 20 },
-          grid: { color: 'rgba(0,0,0,0.04)' }
-        },
-        x: {
-          grid: { display: false }
-        }
-      },
-      animation: {
-        duration: 700,
-        easing: 'easeOutQuart'
+    // CAMERA FUNCTIONS
+    async function openCamera() {
+      const modal = document.getElementById('cameraModal');
+      const video = document.getElementById('cameraFeed');
+      
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
+        video.srcObject = cameraStream;
+        modal.classList.add('active');
+      } catch (err) {
+        alert('Camera access denied or unavailable');
+        console.error(err);
       }
     }
-  });
-}
 
-function showInsights(items, overall, breakdown) {
-  const tips = [];
-
-  if (overall <= 33) {
-    tips.push("Great choice — this product has a low environmental impact. 🌿");
-  } else if (overall <= 66) {
-    tips.push("Moderate impact — consider swapping a high-impact ingredient for a plant-based alternative.");
-  } else {
-    tips.push("High impact — switching to plant-based alternatives or local sources can drastically reduce this.");
-  }
-
-  const maxCat = Object.keys(breakdown).reduce((a,b) => breakdown[a] > breakdown[b] ? a : b);
-  if (maxCat === 'co2Score') {
-    tips.push("CO₂ impact is the largest contributor — look for low-meat or lower-processed alternatives.");
-  } else if (maxCat === 'waterScore') {
-    tips.push("Water usage is high — avoid ingredients like almonds or high-water crops when possible.");
-  } else if (maxCat === 'animalScore') {
-    tips.push("Animal-based ingredients dominate — choose plant-based substitutes where practical.");
-  }
-
-  const lower = items.map(i => i.toLowerCase());
-  if (lower.includes('milk') || lower.includes('cheese')) {
-    tips.push("Contains dairy — swapping to plant milks (oat/soy) reduces both CO₂ and animal impact.");
-  }
-  if (lower.includes('almond')) {
-    tips.push("Contains almonds — almonds have high water footprint; consider other nuts or seeds.");
-  }
-  if (lower.includes('beef') || lower.includes('lamb')) {
-    tips.push("Contains red meat — red meat typically has a high environmental footprint.");
-  }
-
-  const finalTips = tips.slice(0,3);
-
-  const container = document.getElementById('insightText');
-  container.innerHTML = `<strong>Quick Insights</strong><ul style="margin:8px 0 0 18px;padding:0;">${finalTips.map(t => `<li style="margin:6px 0;">${t}</li>`).join("")}</ul>`;
-}
-
-function displaySustainability(items) {
-
-  if (!items || items.length === 0) {
-    document.getElementById('sustainabilityText').textContent = '';
-    document.getElementById('co2Bar').style.width = '0%';
-    document.getElementById('waterBar').style.width = '0%';
-    document.getElementById('animalBar').style.width = '0%';
-    if (window._comparisonChart) { window._comparisonChart.destroy(); window._comparisonChart = null; }
-    document.getElementById('insightText').innerHTML = '';
-    return;
-  }
-
-  let co2 = 0, water = 0, animal = 0, countKnown = 0;
-  for (let item of items) {
-    const d = ingredientData[item];
-    if (!d) continue;
-    countKnown++;
-    co2 += d.co2 || 0;
-    water += d.water || 0;
-    animal += d.animalImpact || 0;
-  }
-
-  const co2Score = Math.min(co2 / 200, 1) * 100;            
-  const waterScore = Math.min(water / 100000, 1) * 100;     
-  const animalScore = Math.min((animal / Math.max(1, countKnown*10)), 1) * 100;
-
- 
-  document.getElementById('co2Bar').style.width = `${Math.round(co2Score)}%`;
-  document.getElementById('waterBar').style.width = `${Math.round(waterScore)}%`;
-  document.getElementById('animalBar').style.width = `${Math.round(animalScore)}%`;
-
- 
-  const overall = Math.round((co2Score + waterScore + animalScore) / 4);
-
-  
-  const text = document.getElementById('sustainabilityText');
-  text.textContent = `Overall Impact Score: ${overall}%`;
-  text.style.color = overall > 66 ? '#d32f2f' : overall > 40 ? '#f57f17' : '#2e7d32';
-
-  
-  createComparisonChart(overall);
-
-  
-  showInsights(items, overall, {co2Score, waterScore, animalScore});
-}
-function isProbablyEnglish(text) {
-  // Simple heuristic: count letters outside a-z / A-Z
-  const nonEnglish = text.replace(/[a-zA-Z\s]/g, '');
-  return (nonEnglish.length / text.length) < 0.3; // if <30% non-English chars, assume English
-}
-
-async function translateText(text, targetLang = "en", defaultSource = "fr") {
-  // Skip translation if text is probably English
-  if (isProbablyEnglish(text)) return text;
-
-  const maxLength = 500;
-  const chunks = [];
-
-  for (let i = 0; i < text.length; i += maxLength) {
-    chunks.push(text.slice(i, i + maxLength));
-  }
-
-  const translatedChunks = [];
-
-  for (const chunk of chunks) {
-    try {
-      let response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${defaultSource}|${targetLang}`
-      );
-      let data = await response.json();
-      translatedChunks.push(data.responseData.translatedText || chunk);
-    } catch (err) {
-      console.error("Translation error:", err);
-      translatedChunks.push(chunk);
+    function closeCamera() {
+      const modal = document.getElementById('cameraModal');
+      const video = document.getElementById('cameraFeed');
+      
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      
+      if (barcodeInterval) {
+        clearInterval(barcodeInterval);
+        barcodeInterval = null;
+      }
+      
+      video.srcObject = null;
+      modal.classList.remove('active');
+      document.getElementById('barcodeResult').textContent = '';
     }
-  }
 
-  return translatedChunks.join(" ");
-}
+    async function capturePhoto() {
+      const video = document.getElementById('cameraFeed');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      
+      closeCamera();
+      
+      canvas.toBlob(blob => {
+        processImage(blob);
+      }, 'image/jpeg');
+    }
 
+    // BARCODE SCANNER
+    async function openBarcodeScanner() {
+      const modal = document.getElementById('cameraModal');
+      const video = document.getElementById('cameraFeed');
+      const canvas = document.getElementById('barcodeCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
+        video.srcObject = cameraStream;
+        modal.classList.add('active');
+        
+        document.getElementById('barcodeResult').textContent = '🔍 Scanning for barcode...';
+        
+        // Scan for barcode every 100ms
+        barcodeInterval = setInterval(() => {
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            
+            if (code) {
+              clearInterval(barcodeInterval);
+              document.getElementById('barcodeResult').textContent = `✅ Barcode detected: ${code.data}`;
+              setTimeout(() => {
+                closeCamera();
+                fetchProductFromBarcode(code.data);
+              }, 1000);
+            }
+          }
+        }, 100);
+        
+      } catch (err) {
+        alert('Camera access denied or unavailable');
+        console.error(err);
+      }
+    }
 
+    // BARCODE LOOKUP
+    async function fetchProductFromBarcode(barcode) {
+      updateProgress(20, 'Looking up product from barcode...');
+      
+      try {
+        const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+        const data = await response.json();
+        
+        if (data.status === 1 && data.product) {
+          const product = data.product;
+          const ingredientsText = product.ingredients_text || product.ingredients_text_en || '';
+          
+          if (!ingredientsText) {
+            alert('Product found, but no ingredients listed. Please scan the ingredients label directly.');
+            hideProgress();
+            return;
+          }
+          
+          document.getElementById('ocrText').innerHTML = `✅ Product: ${product.product_name || 'Unknown'}<br>Brand: ${product.brands || 'Unknown'}`;
+          
+          // Process ingredients
+          processIngredientsText(ingredientsText);
+          
+        } else {
+          alert('Product not found in database. Please scan the ingredients label directly.');
+          hideProgress();
+        }
+      } catch (err) {
+        console.error('Barcode lookup error:', err);
+        alert('Failed to look up barcode. Please try scanning the ingredients label.');
+        hideProgress();
+      }
+    }
 
-</script>
+    // FILE UPLOAD HANDLER
+    function handleFileUpload() {
+      const file = document.getElementById('imageInput').files[0];
+      if (file) {
+        processImage(file);
+      }
+    }
+
+    // UNIFIED IMAGE PROCESSING
+    async function processImage(imageFile) {
+      const ocrTextElement = document.getElementById("ocrText");
+      ocrTextElement.innerHTML = '';
+      updateProgress(10, 'Uploading image...');
+
+      try {
+        const reader = new FileReader();
+        const base64Image = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(imageFile);
+        });
+
+        updateProgress(20, 'Extracting ingredients from image...');
+        
+        const ingredientsResponse = await fetch("http://127.0.0.1:5000/extract-ingredients", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: base64Image })
+        });
+
+        if (!ingredientsResponse.ok) throw new Error(`Server returned ${ingredientsResponse.status}`);
+        
+        const ingredientsData = await ingredientsResponse.json();
+        
+        if (!ingredientsData.ingredients || ingredientsData.ingredients.length === 0) {
+          hideProgress();
+          ocrTextElement.innerText = "✅ OCR succeeded, but no known ingredients were detected.";
+          return;
+        }
+
+        const ingredients = ingredientsData.ingredients;
+        await analyzeIngredients(ingredients);
+
+      } catch(err) {
+        console.error("❌ Error:", err);
+        hideProgress();
+        ocrTextElement.innerHTML = `❌ Error: ${err.message}`;
+      }
+    }
+
+    // PROCESS INGREDIENTS TEXT (from barcode lookup)
+    async function processIngredientsText(text) {
+      updateProgress(30, 'Processing ingredients...');
+      
+      try {
+        // Send to backend to parse ingredients
+        const response = await fetch("http://127.0.0.1:5000/extract-ingredients", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            imageBase64: btoa(text)
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.ingredients && data.ingredients.length > 0) {
+          await analyzeIngredients(data.ingredients);
+        } else {
+          hideProgress();
+          alert('Could not parse ingredients. Please scan the label directly.');
+        }
+        
+      } catch (err) {
+        console.error(err);
+        hideProgress();
+      }
+    }
+
+    // UNIFIED ANALYSIS FUNCTION
+    async function analyzeIngredients(ingredients) {
+      const ocrTextElement = document.getElementById("ocrText");
+      
+      updateProgress(50, 'Ingredients detected! Analyzing environmental impact...');
+      ocrTextElement.innerHTML += `<br>✅ Ingredients: ${ingredients.join(", ")}`;
+
+      try {
+        updateProgress(60, 'Running AI analysis (this may take 20-30 seconds)...');
+        
+        const analysisResponse = await fetch("http://127.0.0.1:5000/comprehensive-analysis", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            ingredients: ingredients,
+            userPreferences: userAllergens
+          })
+        });
+
+        if (!analysisResponse.ok) throw new Error(`Analysis failed`);
+        
+        const analysis = await analysisResponse.json();
+        
+        if (analysis.error) throw new Error(analysis.error);
+
+        updateProgress(100, 'Complete!');
+        
+        displayEnvironmentalImpact(analysis.environmental);
+        displayAllergenResults(analysis.allergens, analysis.dietary);
+        displaySustainability(ingredients, analysis.environmental);
+        displayInsights(analysis.recommendations);
+
+        setTimeout(hideProgress, 1000);
+
+      } catch (err) {
+        console.error(err);
+        hideProgress();
+        ocrTextElement.innerHTML += `<br>❌ Analysis error: ${err.message}`;
+      }
+    }
+
+    function updateProgress(percentage, message) {
+      const progressBar = document.getElementById('progressBar');
+      const progressContainer = document.getElementById('progressContainer');
+      const loadingMessage = document.getElementById('loadingMessage');
+
+      progressContainer.style.display = 'block';
+      loadingMessage.style.display = 'block';
+      
+      progressBar.style.width = percentage + '%';
+      progressBar.textContent = percentage + '%';
+      loadingMessage.textContent = message;
+    }
+
+    function hideProgress() {
+      document.getElementById('progressContainer').style.display = 'none';
+      document.getElementById('loadingMessage').style.display = 'none';
+    }
+
+    function displayEnvironmentalImpact(environmental) {
+      if (!environmental) return;
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = `
+        <div class="result-card">
+          <h2>🌍 Environmental Impact</h2>
+          <p><strong>Total CO₂ emissions:</strong> ${environmental.totalCO2 ? environmental.totalCO2.toFixed(2) : 0} kg CO₂ per 100g</p>
+          <p><strong>Water usage:</strong> ${environmental.waterUsage ? environmental.waterUsage.toLocaleString() : 0} L per 100g</p>
+          <p><strong>Animal impact:</strong> ${environmental.animalImpact || environmental.landUse || 'Medium'}</p>
+          <p><strong>Sustainability rating:</strong> ${environmental.rating || 'Unknown'}</p>
+        </div>
+      `;
+    }
+
+    function displayAllergenResults(allergens, dietary) {
+      console.log("displayAllergenResults called with:", allergens, dietary);
+      const resultDiv = document.getElementById("allergenResult");
+
+      if (!allergens || !dietary) {
+        console.warn("Missing allergen or dietary data");
+        resultDiv.textContent = "⚠️ Allergen/dietary info unavailable";
+        resultDiv.className = "";
+        return;
+      }
+
+      const hasDefiniteViolations = allergens.definiteViolations && allergens.definiteViolations.length > 0;
+      const hasCautionWarnings = allergens.cautionWarnings && allergens.cautionWarnings.length > 0;
+      const hasDietaryViolations = dietary.violations && dietary.violations.length > 0;
+
+      // GREEN: Safe to eat
+      if (!hasDefiniteViolations && !hasCautionWarnings && !hasDietaryViolations) {
+        resultDiv.innerHTML = "✅ <strong>You can eat this product!</strong>";
+        resultDiv.className = "green";
+      }
+      // RED: Definite violations - AVOID
+      else if (hasDefiniteViolations || hasDietaryViolations) {
+        let messages = [];
+        
+        if (hasDefiniteViolations) {
+          const allergenMsgs = allergens.definiteViolations.map(v => 
+            `<strong>${v.allergen}</strong> (found in: ${v.source})`
+          );
+          messages.push(`<strong>Allergens:</strong> ${allergenMsgs.join(", ")}`);
+        }
+
+        if (hasDietaryViolations) {
+          messages.push(`<strong>Dietary:</strong> ${dietary.violations.join(", ")}`);
+        }
+
+        resultDiv.innerHTML = `
+          ⛔ <strong>AVOID THIS PRODUCT</strong>
+          <div class="caution-details">
+            ${messages.join("<br>")}
+          </div>
+        `;
+        resultDiv.className = "red";
+      }
+      // YELLOW: Caution warnings - BE CAREFUL
+      else if (hasCautionWarnings) {
+        const cautionMsgs = allergens.cautionWarnings.map(v => 
+          `<li><strong>${v.allergen}:</strong> ${v.warning || v.source}</li>`
+        );
+
+        resultDiv.innerHTML = `
+          ⚠️ <strong>BE CAUTIOUS WITH THIS PRODUCT</strong>
+          <div class="caution-details">
+            <p>Potential concerns:</p>
+            <ul>${cautionMsgs.join("")}</ul>
+            <p><em>This product may be safe, but exercise caution if you have severe allergies.</em></p>
+          </div>
+        `;
+        resultDiv.className = "yellow";
+      }
+
+      console.log("Allergen results displayed");
+    }
+
+    function displaySustainability(items, environmental) {
+      if (!items || items.length === 0 || !environmental) {
+        document.getElementById('sustainabilityText').textContent = 'Calculating...';
+        return;
+      }
+
+      // FIXED SCALING - Based on realistic averages
+      const avgCO2 = 0.8;
+      const avgWater = 400;
+      
+      const co2Score = Math.min((environmental.totalCO2 / avgCO2) * 50, 100);
+      const waterScore = Math.min((environmental.waterUsage / avgWater) * 50, 100);
+      
+      let animalScore = 50;
+      const impactLevel = (environmental.animalImpact || environmental.landUse || "Medium").toLowerCase();
+      if (impactLevel.includes("low")) animalScore = 20;
+      else if (impactLevel.includes("high")) animalScore = 80;
+      else animalScore = 50;
+
+      console.log("Scaled scores:", { co2Score, waterScore, animalScore });
+
+      setTimeout(() => {
+        document.getElementById('co2Bar').style.width = `${Math.round(co2Score)}%`;
+        document.getElementById('waterBar').style.width = `${Math.round(waterScore)}%`;
+        document.getElementById('animalBar').style.width = `${Math.round(animalScore)}%`;
+      }, 100);
+
+      const overall = Math.round((co2Score + waterScore + animalScore) / 3);
+
+      const text = document.getElementById('sustainabilityText');
+      text.textContent = `Overall Impact Score: ${overall}%`;
+      text.style.color = overall > 66 ? '#d32f2f' : overall > 40 ? '#f57f17' : '#2e7d32';
+
+      createComparisonChart(overall);
+    }
+
+    function displayInsights(recommendations) {
+      if (!recommendations) return;
+
+      const tips = [];
+
+      if (recommendations.insights && recommendations.insights.length > 0) {
+        tips.push(...recommendations.insights.slice(0, 2));
+      }
+
+      if (recommendations.environmental && recommendations.environmental.length > 0) {
+        tips.push(`💡 Consider: ${recommendations.environmental[0]}`);
+      }
+
+      if (recommendations.allergenFree && recommendations.allergenFree.length > 0) {
+        tips.push(`🔄 Alternative: ${recommendations.allergenFree[0]}`);
+      }
+
+      const finalTips = tips.slice(0, 3);
+      const container = document.getElementById('insightText');
+      
+      if (finalTips.length > 0) {
+        container.innerHTML = `<strong>Quick Insights</strong><ul style="margin:8px 0 0 18px;padding:0;">${finalTips.map(t => `<li style="margin:6px 0;">${t}</li>`).join("")}</ul>`;
+      } else {
+        container.innerHTML = '<strong>No additional insights available</strong>';
+      }
+    }
+
+    function createComparisonChart(userScore) {
+      const ctx = document.getElementById('comparisonChart').getContext('2d');
+
+      if (window._comparisonChart) {
+        window._comparisonChart.destroy();
+      }
+
+      const baseline = 50;
+
+      const getColor = (v) => {
+        if (v <= 33) return '#66bb6a';
+        if (v <= 66) return '#fbc02d';
+        return '#d32f2f';
+      };
+
+      window._comparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['This Product', 'Average Product'],
+          datasets: [{
+            label: 'Environmental Impact Score (%)',
+            data: [userScore, baseline],
+            backgroundColor: [getColor(userScore), '#90a4ae'],
+            borderRadius: 8,
+            barThickness: 36
+          }]
+        },
+        options: {
+          plugins: { 
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `Impact Score: ${context.parsed.y}% (Lower is better)`;
+                }
+              }
+            }
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { stepSize: 20 },
+              grid: { color: 'rgba(0,0,0,0.04)' },
+              title: {
+                display: true,
+                text: 'Impact Score (Lower = Better)'
+              }
+            },
+            x: {
+              grid: { display: false }
+            }
+          },
+          animation: {
+            duration: 700,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CORS Test</title>
+</head>
+<body>
+  <button id="testBtn">Test Fetch</button>
+  <pre id="output"></pre>
+
+  <script>
+    const btn = document.getElementById("testBtn");
+    const output = document.getElementById("output");
+
+    btn.addEventListener("click", async () => {
+      try {
+        const res = await fetch("http://localhost:5000/extract-ingredients", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: "test" }) // dummy data
+        });
+
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = "❌ Error: " + err;
+      }
+    });
+  </script>
+</body>
+</html>
