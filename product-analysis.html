@@ -371,11 +371,11 @@
   <!-- Camera Modal -->
   <div id="cameraModal">
     <div class="camera-container">
-      <h2>Camera Capture</h2>
+      <h2 id="cameraTitle">Camera Capture</h2>
       <video id="cameraFeed" autoplay playsinline></video>
       <canvas id="barcodeCanvas"></canvas>
       <div class="camera-controls">
-        <button onclick="capturePhoto()">📸 Capture</button>
+        <button id="captureBtn" onclick="capturePhoto()">📸 Capture</button>
         <button onclick="closeCamera()" style="background:#e53e3e;">✖ Cancel</button>
       </div>
       <p id="barcodeResult" style="margin-top:10px; color:#4CAF50; font-weight:bold;"></p>
@@ -388,11 +388,18 @@
 
     let cameraStream = null;
     let barcodeInterval = null;
+    let isBarcodeMode = false;
 
     // CAMERA FUNCTIONS
     async function openCamera() {
+      isBarcodeMode = false;
       const modal = document.getElementById('cameraModal');
       const video = document.getElementById('cameraFeed');
+      
+      // Update UI for photo capture mode
+      document.getElementById('cameraTitle').textContent = 'Camera Capture';
+      document.getElementById('captureBtn').style.display = 'inline-block';
+      document.getElementById('barcodeResult').textContent = '';
       
       try {
         cameraStream = await navigator.mediaDevices.getUserMedia({ 
@@ -443,6 +450,7 @@
 
     // BARCODE SCANNER
     async function openBarcodeScanner() {
+      isBarcodeMode = true;
       console.log('openBarcodeScanner called');
       console.log('jsQR available:', typeof jsQR);
       
@@ -450,6 +458,10 @@
       const video = document.getElementById('cameraFeed');
       const canvas = document.getElementById('barcodeCanvas');
       const resultText = document.getElementById('barcodeResult');
+      
+      // Update UI for barcode scanning mode
+      document.getElementById('cameraTitle').textContent = 'Barcode Scanner';
+      document.getElementById('captureBtn').style.display = 'none'; // Hide capture button
       
       if (!window.jsQR) {
         alert('Barcode scanner library not loaded. Please refresh the page.');
@@ -501,15 +513,17 @@
               }
               
               try {
+                // Try with inversionAttempts for better detection
                 const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                  inversionAttempts: "dontInvert",
+                  inversionAttempts: "attemptBoth",
                 });
                 
-                if (code) {
+                if (code && code.data) {
                   console.log('✅ Barcode detected:', code.data);
                   clearInterval(barcodeInterval);
                   barcodeInterval = null;
                   resultText.textContent = `✅ Found: ${code.data}`;
+                  resultText.style.color = '#4CAF50';
                   
                   // Vibrate if available
                   if (navigator.vibrate) {
