@@ -541,7 +541,7 @@
 
         updateProgress(20, 'Extracting ingredients from image...');
         
-        const ingredientsResponse = await fetch("http://127.0.0.1:5000/extract-ingredients", {
+        const ingredientsResponse = await fetch("https://ethica-backend-830766747753.us-central1.run.app/extract-ingredients", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ imageBase64: base64Image })
@@ -573,7 +573,7 @@
       
       try {
         // Send to backend to parse ingredients
-        const response = await fetch("http://127.0.0.1:5000/extract-ingredients", {
+        const response = await fetch("https://ethica-backend-830766747753.us-central1.run.app/extract-ingredients", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -606,7 +606,7 @@
       try {
         updateProgress(60, 'Running AI analysis (this may take 20-30 seconds)...');
         
-        const analysisResponse = await fetch("http://127.0.0.1:5000/comprehensive-analysis", {
+        const analysisResponse = await fetch("https://ethica-backend-830766747753.us-central1.run.app/comprehensive-analysis", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
