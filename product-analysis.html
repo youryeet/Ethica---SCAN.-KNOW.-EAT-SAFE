@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -443,11 +443,20 @@
 
     // BARCODE SCANNER
     async function openBarcodeScanner() {
+      console.log('openBarcodeScanner called');
+      console.log('jsQR available:', typeof jsQR);
+      
       const modal = document.getElementById('cameraModal');
       const video = document.getElementById('cameraFeed');
       const canvas = document.getElementById('barcodeCanvas');
-      const ctx = canvas.getContext('2d');
       const resultText = document.getElementById('barcodeResult');
+      
+      if (!window.jsQR) {
+        alert('Barcode scanner library not loaded. Please refresh the page.');
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
       
       // Clear any existing interval
       if (barcodeInterval) {
@@ -456,27 +465,40 @@
       }
       
       try {
+        resultText.textContent = '🔍 Starting camera...';
+        
         cameraStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          } 
         });
+        
         video.srcObject = cameraStream;
+        await video.play();
         modal.classList.add('active');
         
-        resultText.textContent = '🔍 Scanning for barcode...';
-        console.log('Barcode scanner started, jsQR available:', typeof jsQR !== 'undefined');
+        resultText.textContent = '🔍 Scanning for barcode... Hold steady!';
         
-        // Wait for video to be ready before starting scan
-        video.onloadedmetadata = () => {
-          console.log('Video ready:', video.videoWidth, 'x', video.videoHeight);
+        // Give video time to start
+        setTimeout(() => {
+          console.log('Starting barcode scan loop, video dimensions:', video.videoWidth, 'x', video.videoHeight);
           
-          // Scan for barcode every 200ms (reduced frequency for better performance)
+          let scanCount = 0;
           barcodeInterval = setInterval(() => {
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            scanCount++;
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
               canvas.width = video.videoWidth;
               canvas.height = video.videoHeight;
               ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
               
               const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              
+              if (scanCount % 5 === 0) {
+                console.log('Scanning frame', scanCount, '- dimensions:', canvas.width, 'x', canvas.height);
+              }
               
               try {
                 const code = jsQR(imageData.data, imageData.width, imageData.height, {
@@ -484,26 +506,36 @@
                 });
                 
                 if (code) {
-                  console.log('Barcode found:', code.data);
+                  console.log('✅ Barcode detected:', code.data);
                   clearInterval(barcodeInterval);
                   barcodeInterval = null;
-                  resultText.textContent = `✅ Barcode detected: ${code.data}`;
+                  resultText.textContent = `✅ Found: ${code.data}`;
+                  
+                  // Vibrate if available
+                  if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                  }
                   
                   setTimeout(() => {
                     closeCamera();
                     fetchProductFromBarcode(code.data);
-                  }, 1000);
+                  }, 1500);
                 }
               } catch (err) {
-                console.error('jsQR error:', err);
+                console.error('jsQR processing error:', err);
+                clearInterval(barcodeInterval);
+                resultText.textContent = '❌ Scanner error. Please try again.';
               }
+            } else {
+              console.log('Video not ready yet, readyState:', video.readyState, 'dimensions:', video.videoWidth);
             }
-          }, 200);
-        };
+          }, 250);
+        }, 500);
         
       } catch (err) {
-        alert('Camera access denied or unavailable: ' + err.message);
-        console.error('Camera error:', err);
+        alert('Camera error: ' + err.message);
+        console.error('Camera access error:', err);
+        resultText.textContent = '❌ Camera access denied';
       }
     }
 
