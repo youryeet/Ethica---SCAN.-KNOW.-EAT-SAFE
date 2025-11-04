@@ -260,6 +260,12 @@ def comprehensive_ai_analysis(ingredients: list, user_preferences: dict) -> dict
        - Check if product meets user's dietary restrictions
        - List any violations (e.g., "Contains milk - not vegan")
        - Overall compatibility score (Compatible/Partially Compatible/Not Compatible)
+       
+       IMPORTANT DIETARY RULES:
+       * Jain: ALLOWS dairy (milk, cheese, yogurt, butter), ALLOWS eggs. PROHIBITS: root vegetables (onion, garlic, potato), meat, fish
+       * Vegan: NO animal products (no meat, dairy, eggs, honey)
+       * Vegetarian: ALLOWS dairy and eggs, NO meat or fish
+       * Pescatarian: ALLOWS dairy, eggs, fish, NO meat
     
     4. HEALTH ANALYSIS:
        - Nutritional concerns (high sodium, saturated fats, added sugars, artificial additives)
