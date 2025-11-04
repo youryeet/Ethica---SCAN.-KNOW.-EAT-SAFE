@@ -9,10 +9,16 @@ import google.generativeai as genai
 import json
 import re
 
-# ----------------- LOAD ENVIRONMENT VARIABLES -----------------
+# Load environment variables
 load_dotenv()
 credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-project_id = os.getenv('PROJECT_ID')
+project_id = os.getenv('PROJECT_ID', 'ethica-vision-2024')
+
+# Make credentials path absolute if it's relative
+if credentials_path and not os.path.isabs(credentials_path):
+    credentials_path = os.path.join(os.path.dirname(__file__), credentials_path)
+    if os.path.exists(credentials_path):
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 
 # Clear any API key that might be set
 if 'GOOGLE_API_KEY' in os.environ:
@@ -22,48 +28,77 @@ print("📝 Loading configuration...")
 print(f"Credentials path: {credentials_path}")
 print(f"Project ID: {project_id}")
 
-# ----------------- VALIDATE CONFIGURATION -----------------
-if not credentials_path or not os.path.exists(credentials_path):
-    raise ValueError(
-        "❌ Invalid GOOGLE_APPLICATION_CREDENTIALS path. "
-        "Check your .env file and ensure the service account JSON exists."
-    )
-
 # ----------------- INITIALIZE APP -----------------
 app = Flask(__name__)
 
-# **UPDATED CORS - ALLOWS YOUR GITHUB PAGES DOMAIN**
-CORS(app, origins=[
-    "http://127.0.0.1:5501",  # Local development
-    "http://localhost:5501",   # Alternative local
-    "https://*.github.io",     # Any GitHub Pages domain
-    "https://ethica-backend-830766747753.us-central1.run.app"  # Self
-], supports_credentials=True)
+# **CORS - ALLOW ALL ORIGINS**
+CORS(app, 
+     resources={r"/*": {
+         "origins": "*",
+         "methods": ["GET", "POST", "OPTIONS"],
+         "allow_headers": ["Content-Type", "Authorization"],
+         "supports_credentials": False
+     }})
 
-# ----------------- INITIALIZE GOOGLE CLIENTS -----------------
-try:
-    # Initialize Vision API client
-    vision_client = vision.ImageAnnotatorClient()
-    print("✅ Vision API client initialized")
-    
-    # Initialize Gemini AI with explicit credentials
-    import google.auth
-    credentials, project = google.auth.default()
-    genai.configure(credentials=credentials)
-    model = genai.GenerativeModel('models/gemini-2.0-flash-exp')
-    print("✅ Gemini AI client initialized")
-except Exception as e:
-    print(f"❌ Failed to initialize Google clients: {str(e)}")
-    raise
+# ----------------- GLOBAL CLIENTS (LAZY LOADED) -----------------
+vision_client = None
+model = None
+_credentials = None
+
+def get_credentials():
+    global _credentials
+    if _credentials is None:
+        from google.oauth2 import service_account
+        # Try multiple possible paths
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), 'ethica-service-account.json'),
+            './ethica-service-account.json',
+            'ethica-service-account.json',
+            credentials_path if credentials_path else None
+        ]
+        
+        creds_path = None
+        for path in possible_paths:
+            if path and os.path.exists(path):
+                creds_path = path
+                break
+        
+        if creds_path:
+            _credentials = service_account.Credentials.from_service_account_file(creds_path)
+            print(f"✅ Loaded credentials from: {creds_path}")
+        else:
+            # Fallback to default credentials (Cloud Run service account)
+            import google.auth
+            _credentials, _ = google.auth.default()
+            print("✅ Using default Cloud Run credentials")
+    return _credentials
+
+def get_vision_client():
+    global vision_client
+    if vision_client is None:
+        creds = get_credentials()
+        vision_client = vision.ImageAnnotatorClient(credentials=creds)
+        print("✅ Vision API client initialized")
+    return vision_client
+
+def get_gemini_model():
+    global model
+    if model is None:
+        creds = get_credentials()
+        genai.configure(credentials=creds)
+        model = genai.GenerativeModel('models/gemini-2.0-flash-exp')
+        print("✅ Gemini AI client initialized")
+    return model
 
 
 # ----------------- HELPER FUNCTIONS -----------------
 def extract_text_from_image(base64_image: str) -> str:
     """Extract text from image using Google Cloud Vision."""
     try:
+        client = get_vision_client()
         content = base64.b64decode(base64_image)
         image = vision.Image(content=content)
-        response = vision_client.text_detection(image=image)
+        response = client.text_detection(image=image)
         
         if not response.text_annotations:
             return ""
@@ -99,7 +134,8 @@ def process_ingredients_with_gemini(text: str) -> list:
     """
     
     try:
-        response = model.generate_content(prompt)
+        gemini = get_gemini_model()
+        response = gemini.generate_content(prompt)
         if not response.text:
             return []
         
@@ -180,9 +216,19 @@ def comprehensive_ai_analysis(ingredients: list, user_preferences: dict) -> dict
     Provide a complete analysis including:
     
     1. ENVIRONMENTAL IMPACT:
-       - Total CO2 emissions (kg CO2 per 100g)
-       - Water usage (liters per 100g)
-       - Animal impact score (Low/Medium/High - based on animal products like meat, dairy, eggs)
+       - Total CO2 emissions (kg CO2 per 100g) - Use realistic food industry averages:
+         * Plant-based: 0.1-0.5 kg CO2
+         * Dairy products: 0.8-2.0 kg CO2
+         * Meat products: 2.0-10.0 kg CO2
+       - Water usage (liters per 100g) - Use realistic averages:
+         * Plant-based: 50-200 L
+         * Dairy products: 300-600 L
+         * Meat products: 1000-2000 L
+         * DO NOT return 0 - always estimate a realistic value
+       - Animal impact score (Low/Medium/High):
+         * Low: NO animal products (100% plant-based)
+         * Medium: Contains dairy OR eggs (but NO meat/fish)
+         * High: Contains meat, fish, gelatin, or multiple animal products
        - Overall sustainability rating (Low/Medium/High)
        - Top 5 highest-impact ingredients with their individual CO2 values and percentages
     
@@ -226,10 +272,15 @@ def comprehensive_ai_analysis(ingredients: list, user_preferences: dict) -> dict
        - Allergen-free alternatives if violations found
        - General insights
     
-    IMPORTANT: For "animalImpact", consider:
-    - Low: Plant-based, no animal products
-    - Medium: Contains dairy or eggs but no meat
-    - High: Contains meat, fish, or multiple animal products
+    CRITICAL RULES FOR animalImpact:
+    - Low: ONLY if 100% plant-based (NO dairy, eggs, meat, fish, gelatin, whey, casein, etc.)
+    - Medium: Contains dairy (milk, cheese, butter, whey, casein) OR eggs (but NO meat/fish)
+    - High: Contains ANY meat, poultry, fish, seafood, gelatin, or multiple animal products
+    
+    EXAMPLE:
+    - "wheat flour, cheddar cheese, salt" = Medium (has dairy)
+    - "wheat flour, salt, oil" = Low (100% plant-based)
+    - "wheat flour, chicken flavor, cheese" = High (has meat ingredients)
     
     Return ONLY valid JSON in this EXACT format (no extra text):
     {{
@@ -271,7 +322,8 @@ def comprehensive_ai_analysis(ingredients: list, user_preferences: dict) -> dict
     """
     
     try:
-        response = model.generate_content(prompt)
+        gemini = get_gemini_model()
+        response = gemini.generate_content(prompt)
         if not response.text:
             return {"error": "No response from AI"}
         
@@ -343,7 +395,8 @@ def calculate_co2_impact_with_ai(ingredients: list) -> dict:
     """
     
     try:
-        response = model.generate_content(prompt)
+        gemini = get_gemini_model()
+        response = gemini.generate_content(prompt)
         if not response.text:
             return {"error": "No response from AI"}
         
