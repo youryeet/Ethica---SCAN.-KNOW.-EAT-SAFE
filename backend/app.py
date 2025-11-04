@@ -31,7 +31,14 @@ if not credentials_path or not os.path.exists(credentials_path):
 
 # ----------------- INITIALIZE APP -----------------
 app = Flask(__name__)
-CORS(app, origins=["http://127.0.0.1:5501"], supports_credentials=True)
+
+# **UPDATED CORS - ALLOWS YOUR GITHUB PAGES DOMAIN**
+CORS(app, origins=[
+    "http://127.0.0.1:5501",  # Local development
+    "http://localhost:5501",   # Alternative local
+    "https://*.github.io",     # Any GitHub Pages domain
+    "https://ethica-backend-830766747753.us-central1.run.app"  # Self
+], supports_credentials=True)
 
 # ----------------- INITIALIZE GOOGLE CLIENTS -----------------
 try:
