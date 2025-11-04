@@ -10,3 +10,10 @@ backend/*.pyc
 backend/.env
 *.json.bak
 backend/package-lock.json
+
+# Service account credentials (sensitive - never commit)
+backend/ethica-service-account.json
+backend/gemini-service-account.json
+backend/gemini-key.json
+backend/service-account.json
+backend/service-account-key.json
