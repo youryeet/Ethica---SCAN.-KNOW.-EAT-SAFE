@@ -308,7 +308,13 @@
 
     #insightText { background:#fffefc; border-radius:8px; padding:10px 12px; box-shadow:0 3px 10px rgba(0,0,0,0.03); }
 
-    canvas#barcodeCanvas { display: none; }
+    canvas#barcodeCanvas { 
+      display: none; 
+      max-width: 100%; 
+      border: 2px solid #4CAF50; 
+      margin-top: 10px;
+    }
+    .barcode-mode canvas#barcodeCanvas { display: block; }
   </style>
 </head>
 <body>
@@ -370,7 +376,7 @@
 
   <!-- Camera Modal -->
   <div id="cameraModal">
-    <div class="camera-container">
+    <div id="cameraContainer" class="camera-container">
       <h2 id="cameraTitle">Camera Capture</h2>
       <video id="cameraFeed" autoplay playsinline></video>
       <canvas id="barcodeCanvas"></canvas>
@@ -553,6 +559,39 @@
       }
     }
 
+    // PROCESS BARCODED INGREDIENTS (skip OCR, go straight to parsing)
+    async function processBarcodedIngredients(ingredientsText) {
+      updateProgress(40, 'Parsing ingredients from barcode...');
+      
+      try {
+        // Clean and parse ingredients text
+        const cleanedText = ingredientsText.toLowerCase().trim();
+        
+        // Split by common delimiters
+        const ingredients = cleanedText
+          .split(/[,;]+/)
+          .map(ing => ing.trim())
+          .filter(ing => ing.length > 2)
+          .map(ing => {
+            // Remove percentages and extra info in parentheses
+            return ing.replace(/\([^)]*\)/g, '').replace(/\d+%/g, '').trim();
+          })
+          .filter(ing => ing.length > 0);
+        
+        if (ingredients.length > 0) {
+          await analyzeIngredients(ingredients);
+        } else {
+          hideProgress();
+          alert('Could not parse ingredients from barcode. Please scan the label directly.');
+        }
+        
+      } catch (err) {
+        console.error('Ingredient parsing error:', err);
+        hideProgress();
+        alert('Error parsing ingredients. Please try scanning the label directly.');
+      }
+    }
+
     // BARCODE LOOKUP
     async function fetchProductFromBarcode(barcode) {
       updateProgress(20, 'Looking up product from barcode...');
@@ -573,8 +612,8 @@
           
           document.getElementById('ocrText').innerHTML = `✅ Product: ${product.product_name || 'Unknown'}<br>Brand: ${product.brands || 'Unknown'}`;
           
-          // Process ingredients
-          processIngredientsText(ingredientsText);
+          // Parse ingredients directly (skip OCR since we have text)
+          processBarcodedIngredients(ingredientsText);
           
         } else {
           alert('Product not found in database. Please scan the ingredients label directly.');
