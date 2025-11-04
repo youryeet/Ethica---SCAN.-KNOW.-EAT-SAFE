@@ -474,33 +474,47 @@
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         console.log('Manual scan - canvas size:', canvas.width, 'x', canvas.height);
         
-        try {
-          const code = jsQR(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: "attemptBoth",
-          });
-          
-          if (code && code.data) {
-            console.log('✅ Manual scan successful:', code.data);
-            resultText.textContent = `✅ Found: ${code.data}`;
-            resultText.style.color = '#4CAF50';
-            
-            if (barcodeInterval) {
-              clearInterval(barcodeInterval);
-              barcodeInterval = null;
+        // Try multiple detection strategies
+        const strategies = [
+          { inversionAttempts: "attemptBoth" },
+          { inversionAttempts: "dontInvert" },
+          { inversionAttempts: "onlyInvert" },
+          { inversionAttempts: "attemptBoth", minQuality: 0.3 },
+          { inversionAttempts: "attemptBoth", minQuality: 0.1 }
+        ];
+        
+        let code = null;
+        for (let i = 0; i < strategies.length && !code; i++) {
+          try {
+            console.log('Trying strategy', i + 1, strategies[i]);
+            code = jsQR(imageData.data, imageData.width, imageData.height, strategies[i]);
+            if (code && code.data) {
+              console.log('✅ Success with strategy', i + 1);
+              break;
             }
-            
-            setTimeout(() => {
-              closeCamera();
-              fetchProductFromBarcode(code.data);
-            }, 1000);
-          } else {
-            resultText.textContent = '❌ No barcode detected. Try different angle or lighting.';
-            resultText.style.color = '#f44336';
-            console.log('Manual scan failed - no barcode found');
+          } catch (err) {
+            console.error('Strategy', i + 1, 'failed:', err);
           }
-        } catch (err) {
-          console.error('Manual scan error:', err);
-          resultText.textContent = '❌ Error: ' + err.message;
+        }
+        
+        if (code && code.data) {
+          console.log('✅ Barcode detected:', code.data);
+          resultText.textContent = `✅ Found: ${code.data}`;
+          resultText.style.color = '#4CAF50';
+          
+          if (barcodeInterval) {
+            clearInterval(barcodeInterval);
+            barcodeInterval = null;
+          }
+          
+          setTimeout(() => {
+            closeCamera();
+            fetchProductFromBarcode(code.data);
+          }, 1000);
+        } else {
+          resultText.textContent = '❌ No barcode found. Move closer & ensure barcode fills frame.';
+          resultText.style.color = '#f44336';
+          console.log('All detection strategies failed');
         }
       } else {
         resultText.textContent = '⚠️ Camera not ready. Wait a moment and try again.';
@@ -575,7 +589,7 @@
               }
               
               try {
-                // Try with inversionAttempts for better detection
+                // More aggressive detection with lower quality threshold
                 const code = jsQR(imageData.data, imageData.width, imageData.height, {
                   inversionAttempts: "attemptBoth",
                 });
@@ -596,11 +610,14 @@
                     closeCamera();
                     fetchProductFromBarcode(code.data);
                   }, 1500);
+                } else if (scanCount % 10 === 0) {
+                  // Every 10 scans, show a tip
+                  resultText.textContent = '🔍 Scanning... Try moving closer or use "Try Detect" button';
                 }
               } catch (err) {
                 console.error('jsQR processing error:', err);
                 clearInterval(barcodeInterval);
-                resultText.textContent = '❌ Scanner error. Please try again.';
+                resultText.textContent = '❌ Scanner error. Use "Try Detect" button or try again.';
               }
             } else {
               console.log('Video not ready yet, readyState:', video.readyState, 'dimensions:', video.videoWidth);
