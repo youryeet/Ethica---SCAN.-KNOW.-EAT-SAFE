@@ -605,7 +605,7 @@
       ocrTextElement.innerHTML += `<br>✅ Ingredients: ${ingredients.join(", ")}`;
 
       try {
-        updateProgress(60, 'Running AI analysis (this may take 20-30 seconds)...');
+        updateProgress(60, 'Running analysis (this may take 20-30 seconds)...');
         
         const analysisResponse = await fetch("https://ethica-backend-830766747753.us-central1.run.app/comprehensive-analysis", {
           method: "POST",
