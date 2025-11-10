@@ -10,7 +10,7 @@
 
     body {
       margin: 0;
-      background-color: #F5F5F5;
+      background: linear-gradient(135deg, #e8f5e9, #e0f7fa);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -24,9 +24,9 @@
       background: white;
       padding: 2.5rem;
       border-radius: 1.5rem;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       width: 100%;
-      max-width: 450px;
+      max-width: 700px;
       animation: fadeIn 0.8s ease;
       text-align: center;
     }
@@ -37,63 +37,170 @@
     }
 
     h1 {
-      font-size: 2rem;
-      color: #4CAF50;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #4CAF50 0%, #00BFA6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 0.5rem;
     }
 
-    p {
-      font-size: 1rem;
-      color: #555;
-      margin-bottom: 1.8rem;
+    h2 {
+      font-size: 1.1rem;
+      color: #666;
+      margin-bottom: 2rem;
+      font-weight: 400;
     }
 
-    form {
+    .section {
+      margin-bottom: 2rem;
       text-align: left;
-      margin-top: 1rem;
     }
 
-    label {
+    .section h3 {
+      color: #4CAF50;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: #FAFAFA;
-      border: 1.5px solid #E0E0E0;
-      border-radius: 0.75rem;
-      padding: 0.6rem 1rem;
-      margin-bottom: 0.75rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      gap: 0.5rem;
     }
 
-    label:hover {
-      background: #E8F5E9;
+    .diet-toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .diet-toggle {
+      background: white;
+      border: 2px solid #E0E0E0;
+      border-radius: 0.75rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .diet-toggle:hover {
+      border-color: #4CAF50;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+    }
+
+    .diet-toggle.active {
+      background: linear-gradient(135deg, #4CAF50 0%, #00BFA6 100%);
+      border-color: #4CAF50;
+      color: white;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .custom-input-section {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #F5F5F5;
+      border-radius: 0.75rem;
+    }
+
+    .custom-input-section label {
+      display: block;
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .custom-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .custom-input-wrapper input {
+      flex: 1;
+      padding: 0.7rem;
+      border: 2px solid #E0E0E0;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      transition: border-color 0.3s;
+    }
+
+    .custom-input-wrapper input:focus {
+      outline: none;
       border-color: #4CAF50;
     }
 
-    input[type="checkbox"] {
-      accent-color: #4CAF50;
-      transform: scale(1.2);
-    }
-
-    button {
-      display: block;
-      width: 100%;
-      margin-top: 1.5rem;
-      padding: 0.8rem;
-      font-size: 1rem;
-      font-weight: 600;
-      background-color: #4CAF50;
+    .custom-input-wrapper button {
+      background: #4CAF50;
       color: white;
       border: none;
-      border-radius: 0.75rem;
+      border-radius: 0.5rem;
+      padding: 0.7rem 1.2rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s;
     }
 
-    button:hover {
-      background-color: #43A047;
+    .custom-input-wrapper button:hover {
+      background: #00BFA6;
+      transform: translateY(-1px);
+    }
+
+    .custom-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+
+    .custom-tag {
+      background: white;
+      border: 2px solid #4CAF50;
+      color: #4CAF50;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .custom-tag button {
+      background: none;
+      border: none;
+      color: #E53935;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    #nextBtn {
+      background: linear-gradient(135deg, #4CAF50 0%, #00BFA6 100%);
+      color: white;
+      border: none;
+      border-radius: 1rem;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    #nextBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
     }
 
     .footer {
@@ -103,36 +210,97 @@
       text-align: center;
     }
 
+    @media (max-width: 768px) {
+      .diet-toggle-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
   </style>
 </head>
 <body>
 
   <div class="app-container">
     <h1>🌿 Ethica</h1>
-    <p>Select your allergens & dietary preferences</p>
+    <h2>Customize your dietary preferences & allergens</h2>
 
-    <form id="allergenForm">
-      <label><input type="checkbox" name="gluten"> Gluten-Free</label>
-      <label><input type="checkbox" name="dairy"> Dairy-Free</label>
-      <label><input type="checkbox" name="nuts"> Nut-Free</label>
-      <label><input type="checkbox" name="soy"> Soy-Free</label>
-      <label><input type="checkbox" name="eggs"> Egg-Free</label>
-      <label><input type="checkbox" name="vegan"> Vegan</label>
-      <label><input type="checkbox" name="kosher"> Kosher</label>
-      <label><input type="checkbox" name="jain"> Jain</label>
-      <label><input type="checkbox" name="vegetarian"> Vegetarian</label>
-      <label><input type="checkbox" name="pescatarian"> Pescatarian</label>
-      <label><input type="checkbox" name="shellfish"> Shellfish</label>
-      <label><input type="checkbox" name="peanuts"> Peanuts</label>
-<label><input type="checkbox" name="treeNuts"> Tree Nuts</label>
-<label><input type="checkbox" name="halal"> Halal</label>
+    <!-- Dietary Preferences Section -->
+    <div class="section">
+      <center><h3>🥗 Dietary Preferences</h3></center>
+      <div class="diet-toggle-grid" id="dietGrid">
+        <button class="diet-toggle" data-diet="vegan" onclick="toggleDiet('vegan')">
+          <span>🌱</span> Vegan
+        </button>
+        <button class="diet-toggle" data-diet="vegetarian" onclick="toggleDiet('vegetarian')">
+          <span>🥚</span> Vegetarian
+        </button>
+        <button class="diet-toggle" data-diet="jain" onclick="toggleDiet('jain')">
+          <span>🕉️</span> Jain
+        </button>
+        <button class="diet-toggle" data-diet="halal" onclick="toggleDiet('halal')">
+          <span>☪️</span> Halal
+        </button>
+        <button class="diet-toggle" data-diet="kosher" onclick="toggleDiet('kosher')">
+          <span>✡️</span> Kosher
+        </button>
+        <button class="diet-toggle" data-diet="pescatarian" onclick="toggleDiet('pescatarian')">
+          <span>🐟</span> Pescatarian
+        </button>
+      </div>
 
+      <!-- Custom Diet Input -->
+      <div class="custom-input-section">
+        <label>Add Custom Diet:</label>
+        <div class="custom-input-wrapper">
+          <input type="text" id="customDietInput" placeholder="e.g., Paleo, Keto, Low-FODMAP">
+          <button onclick="addCustomDiet()">➕ Add</button>
+        </div>
+        <div class="custom-tags" id="customDietTags"></div>
+      </div>
+    </div>
 
+    <!-- Allergens Section -->
+    <div class="section">
+      <center> <h3>⚠️ Allergens to Avoid</h3> </center>
+      <div class="diet-toggle-grid" id="allergenGrid">
+        <button class="diet-toggle" data-allergen="gluten" onclick="toggleAllergen('gluten')">
+          <span>🌾</span> Gluten
+        </button>
+        <button class="diet-toggle" data-allergen="dairy" onclick="toggleAllergen('dairy')">
+          <span>🥛</span> Dairy
+        </button>
+        <button class="diet-toggle" data-allergen="nuts" onclick="toggleAllergen('nuts')">
+          <span>🥜</span> Nuts
+        </button>
+        <button class="diet-toggle" data-allergen="soy" onclick="toggleAllergen('soy')">
+          <span>🫘</span> Soy
+        </button>
+        <button class="diet-toggle" data-allergen="eggs" onclick="toggleAllergen('eggs')">
+          <span>🥚</span> Eggs
+        </button>
+        <button class="diet-toggle" data-allergen="shellfish" onclick="toggleAllergen('shellfish')">
+          <span>🦐</span> Shellfish
+        </button>
+        <button class="diet-toggle" data-allergen="peanuts" onclick="toggleAllergen('peanuts')">
+          <span>🥜</span> Peanuts
+        </button>
+        <button class="diet-toggle" data-allergen="treeNuts" onclick="toggleAllergen('treeNuts')">
+          <span>🌰</span> Tree Nuts
+        </button>
+      </div>
 
+      <!-- Custom Allergen Input -->
+      <div class="custom-input-section">
+        <label>Add Custom Allergen:</label>
+        <div class="custom-input-wrapper">
+          <input type="text" id="customAllergenInput" placeholder="e.g., Sesame, Mustard, Sulfites">
+          <button onclick="addCustomAllergen()">➕ Add</button>
+        </div>
+        <div class="custom-tags" id="customAllergenTags"></div>
+      </div>
+    </div>
 
-
-      <button type="button" id="nextBtn">Continue</button>
-    </form>
+    <button type="button" id="nextBtn">Continue to Scanner →</button>
 
     <div class="footer">
       Guided by Ahimsa 💚
@@ -140,37 +308,145 @@
   </div>
 
   <script>
-    const userAllergens = {
-      gluten: false,
-      dairy: false,
-      nuts: false,
-      soy: false,
-      eggs: false,
-      vegan: false,
-      kosher: false,
-      jain: false,
-      vegetarian: false,
-      shellfish: false,
-      pescatarian: false,
-      treeNuts: false,
-      peanuts: false,
-      halal: false
-    };
+    let selectedDiets = [];
+    let selectedAllergens = [];
+    let customDiets = [];
+    let customAllergens = [];
 
-    const form = document.getElementById('allergenForm');
-    const nextBtn = document.getElementById('nextBtn');
+    // Load saved preferences
+    function loadPreferences() {
+      const savedDiets = localStorage.getItem('ethica_diets');
+      const savedAllergens = localStorage.getItem('ethica_allergens');
+      const savedCustomDiets = localStorage.getItem('ethica_custom_diets');
+      const savedCustomAllergens = localStorage.getItem('ethica_custom_allergens');
 
-    form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-      checkbox.addEventListener('change', (e) => {
-        const { name, checked } = e.target;
-        userAllergens[name] = checked;
-      });
+      if (savedDiets) {
+        selectedDiets = JSON.parse(savedDiets);
+        selectedDiets.forEach(diet => {
+          const button = document.querySelector(`[data-diet="${diet}"]`);
+          if (button) button.classList.add('active');
+        });
+      }
+
+      if (savedAllergens) {
+        selectedAllergens = JSON.parse(savedAllergens);
+        selectedAllergens.forEach(allergen => {
+          const button = document.querySelector(`[data-allergen="${allergen}"]`);
+          if (button) button.classList.add('active');
+        });
+      }
+
+      if (savedCustomDiets) {
+        customDiets = JSON.parse(savedCustomDiets);
+        customDiets.forEach(diet => displayCustomTag('diet', diet));
+      }
+
+      if (savedCustomAllergens) {
+        customAllergens = JSON.parse(savedCustomAllergens);
+        customAllergens.forEach(allergen => displayCustomTag('allergen', allergen));
+      }
+    }
+
+    function toggleDiet(diet) {
+      const button = document.querySelector(`[data-diet="${diet}"]`);
+      
+      if (selectedDiets.includes(diet)) {
+        selectedDiets = selectedDiets.filter(d => d !== diet);
+        button.classList.remove('active');
+      } else {
+        selectedDiets.push(diet);
+        button.classList.add('active');
+      }
+      
+      localStorage.setItem('ethica_diets', JSON.stringify(selectedDiets));
+    }
+
+    function toggleAllergen(allergen) {
+      const button = document.querySelector(`[data-allergen="${allergen}"]`);
+      
+      if (selectedAllergens.includes(allergen)) {
+        selectedAllergens = selectedAllergens.filter(a => a !== allergen);
+        button.classList.remove('active');
+      } else {
+        selectedAllergens.push(allergen);
+        button.classList.add('active');
+      }
+      
+      localStorage.setItem('ethica_allergens', JSON.stringify(selectedAllergens));
+    }
+
+    function addCustomDiet() {
+      const input = document.getElementById('customDietInput');
+      const value = input.value.trim();
+      
+      if (value && !customDiets.includes(value)) {
+        customDiets.push(value);
+        localStorage.setItem('ethica_custom_diets', JSON.stringify(customDiets));
+        displayCustomTag('diet', value);
+        input.value = '';
+      }
+    }
+
+    function addCustomAllergen() {
+      const input = document.getElementById('customAllergenInput');
+      const value = input.value.trim();
+      
+      if (value && !customAllergens.includes(value)) {
+        customAllergens.push(value);
+        localStorage.setItem('ethica_custom_allergens', JSON.stringify(customAllergens));
+        displayCustomTag('allergen', value);
+        input.value = '';
+      }
+    }
+
+    function displayCustomTag(type, value) {
+      const container = document.getElementById(type === 'diet' ? 'customDietTags' : 'customAllergenTags');
+      const tag = document.createElement('div');
+      tag.className = 'custom-tag';
+      tag.innerHTML = `
+        ${value}
+        <button onclick="removeCustom('${type}', '${value}')">×</button>
+      `;
+      container.appendChild(tag);
+    }
+
+    function removeCustom(type, value) {
+      if (type === 'diet') {
+        customDiets = customDiets.filter(d => d !== value);
+        localStorage.setItem('ethica_custom_diets', JSON.stringify(customDiets));
+      } else {
+        customAllergens = customAllergens.filter(a => a !== value);
+        localStorage.setItem('ethica_custom_allergens', JSON.stringify(customAllergens));
+      }
+      
+      // Refresh display
+      document.getElementById(type === 'diet' ? 'customDietTags' : 'customAllergenTags').innerHTML = '';
+      const items = type === 'diet' ? customDiets : customAllergens;
+      items.forEach(item => displayCustomTag(type, item));
+    }
+
+    // Allow Enter key to add custom items
+    document.getElementById('customDietInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addCustomDiet();
     });
 
-    nextBtn.addEventListener('click', () => {
-      localStorage.setItem('userAllergens', JSON.stringify(userAllergens));
+    document.getElementById('customAllergenInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addCustomAllergen();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      // Save all preferences
+      localStorage.setItem('ethica_diets', JSON.stringify(selectedDiets));
+      localStorage.setItem('ethica_allergens', JSON.stringify(selectedAllergens));
+      localStorage.setItem('ethica_custom_diets', JSON.stringify(customDiets));
+      localStorage.setItem('ethica_custom_allergens', JSON.stringify(customAllergens));
+      
+      // Navigate to scanner
       window.location.href = 'product-analysis.html';
     });
+
+    // Load preferences on page load
+    loadPreferences();
   </script>
 
 </body>

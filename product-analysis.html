@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -19,17 +19,18 @@
       align-items: center;
       padding: 2rem;
       color: #333;
-      background: linear-gradient(135deg, #e8f5e9, #e0f7fa);
+      background: #f8faf9;
       font-family: "Poppins", sans-serif;
     }
 
     #sustainabilityResult {
       background: white;
       border-radius: 1rem;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       padding: 1.5rem;
       margin-top: 1.5rem;
       display: inline-block;
+      border: 1px solid #e8e8e8;
     }
 
     #sustainabilityText {
@@ -44,7 +45,8 @@
       padding: 2rem;
       max-width: 600px;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+      border: 1px solid #e8e8e8;
       text-align: center;
       animation: fadeIn 0.8s ease;
     }
@@ -55,45 +57,60 @@
     }
 
     h1 {
-      color: #4CAF50;
-      margin-bottom: 0.2rem;
+      color: #2d5f3f;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      animation: slideDown 0.6s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h3 {
-      color: #555;
-      margin-bottom: 1rem;
+      color: #666;
+      font-weight: 500;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
     }
 
     .scan-options {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1rem;
-      justify-content: center;
-      margin: 1rem 0;
-      flex-wrap: wrap;
+      margin: 1.5rem 0;
     }
 
+    /* Clean, modern scan buttons */
     .scan-btn {
-      background-color: #4f46e5;
+      background: #4CAF50;
       color: white;
       border: none;
-      border-radius: 0.75rem;
-      padding: 0.8rem 1.2rem;
+      border-radius: 0.8rem;
+      padding: 1rem 1.5rem;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.2s ease;
       font-weight: 600;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
     }
 
     .scan-btn:hover {
-      background-color: #3730a3;
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
     }
 
-    .scan-btn.barcode {
-      background-color: #f59e0b;
-    }
-
-    .scan-btn.barcode:hover {
-      background-color: #d97706;
+    .scan-btn:active {
+      transform: translateY(0);
     }
 
     input[type="file"] {
@@ -108,12 +125,13 @@
       padding: 0.8rem 1.2rem;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.2s ease;
       margin-top: 0.5rem;
     }
 
     button:hover {
-      background-color: #43A047;
+      background-color: #45a049;
+      transform: translateY(-1px);
     }
 
     #cameraModal {
@@ -135,17 +153,37 @@
 
     .camera-container {
       background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
+      border-radius: 1.5rem;
+      padding: 2rem;
       max-width: 90%;
       max-height: 90%;
       overflow: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    #cameraTitle {
+      color: #4CAF50;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
     }
 
     #cameraFeed {
       width: 100%;
       max-width: 500px;
-      border-radius: 0.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .camera-controls {
@@ -153,6 +191,25 @@
       display: flex;
       gap: 1rem;
       justify-content: center;
+    }
+
+    .camera-controls button {
+      padding: 0.8rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .camera-controls button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #captureBtn {
+      background: linear-gradient(135deg, #4CAF50 0%, #00BFA6 100%);
+      color: white;
     }
 
     #ocrText {
@@ -205,31 +262,39 @@
 
     .progress-container {
       width: 100%;
-      background-color: #f0f0f0;
-      border-radius: 10px;
+      background: #f0f0f0;
+      border-radius: 50px;
       overflow: hidden;
-      margin: 15px 0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin: 20px 0;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+      height: 30px;
     }
 
     .progress-bar-fill {
-      height: 25px;
-      background: linear-gradient(90deg, #4CAF50, #66bb6a);
-      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #00BFA6);
       transition: width 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-weight: bold;
-      font-size: 12px;
+      font-size: 14px;
+      border-radius: 50px;
+      box-shadow: 0 2px 10px rgba(76, 175, 80, 0.4);
     }
 
     .loading-message {
       margin-top: 10px;
       font-size: 14px;
-      color: #666;
-      font-style: italic;
+      color: #4CAF50;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
     }
 
     @keyframes fadeInUp {
@@ -255,28 +320,43 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
 
+    #allergenResult {
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      animation: fadeInScale 0.5s ease;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     #allergenResult.green { 
-      background: #E8F5E9; 
+      background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
       color: #2E7D32; 
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin: 1rem 0;
+      border: 2px solid #4CAF50;
     }
     
     #allergenResult.yellow { 
-      background: #FFF9C4; 
+      background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%);
       color: #F57F17; 
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin: 1rem 0;
+      border: 2px solid #FBC02D;
     }
     
     #allergenResult.red { 
-      background: #FFEBEE; 
+      background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
       color: #C62828; 
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin: 1rem 0;
+      border: 2px solid #E53935;
     }
 
     .caution-details {
@@ -296,25 +376,100 @@
     }
 
     .bar-container { margin-top: 10px; display:flex; flex-direction:column; gap:0.9rem; }
-    .bar { background:#f1f8f4; border-radius:10px; overflow:hidden; height:28px; position:relative; }
-    .bar span { position:absolute; left:12px; top:4px; font-size:14px; color:#2f2f2f; font-weight:600; z-index:1; }
-    .bar-fill { height:100%; width:0%; transition: width 900ms cubic-bezier(.2,.8,.2,1); border-radius:10px; }
+    .bar { 
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 50px;
+      overflow: hidden;
+      height: 35px;
+      position: relative;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .bar span { 
+      position: absolute;
+      left: 15px;
+      top: 8px;
+      font-size: 14px;
+      color: #2f2f2f;
+      font-weight: 700;
+      z-index: 1;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+    
+    .bar-fill { 
+      height: 100%;
+      border-radius: 50px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
 
-    #co2Bar { background: linear-gradient(90deg,#66bb6a,#43a047); }
-    #waterBar { background: linear-gradient(90deg,#64b5f6,#1e88e5); }
-    #animalBar { background: linear-gradient(90deg,#ffb74d,#fb8c00); }
+    #co2Bar { background: linear-gradient(90deg, #66bb6a, #43a047); }
+    #waterBar { background: linear-gradient(90deg, #42a5f5, #1e88e5); }
+    #animalBar { background: linear-gradient(90deg, #ffa726, #fb8c00); }
 
     .chart-card { background:white; border-radius:12px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); margin-top:12px; }
 
-    #insightText { background:#fffefc; border-radius:8px; padding:10px 12px; box-shadow:0 3px 10px rgba(0,0,0,0.03); }
+    #insightText { 
+      background: linear-gradient(135deg, #FFD54F 0%, #FFC107 100%);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 5px 20px rgba(255, 213, 79, 0.3);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    #insightText strong {
+      color: #E65100;
+      font-size: 1.1rem;
+    }
 
     canvas#barcodeCanvas { 
       display: none; 
       max-width: 100%; 
-      border: 2px solid #4CAF50; 
-      margin-top: 10px;
+      border: 3px solid #4CAF50; 
+      margin-top: 15px;
+      border-radius: 1rem;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
     }
-    .barcode-mode canvas#barcodeCanvas { display: block; }
+    .barcode-mode canvas#barcodeCanvas { 
+      display: block;
+      animation: fadeInScale 0.3s ease-out;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .scan-options {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .scan-btn {
+        padding: 1.2rem 2rem;
+      }
+      
+      .camera-container {
+        padding: 1.5rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      h3 {
+        font-size: 1rem;
+      }
+      
+      .scan-btn {
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -322,6 +477,11 @@
   <div class="app-container">
     <h1>Ethica</h1>
     <h3>SCAN. KNOW. EAT SAFE – Scan Ingredients</h3>
+    
+    <button onclick="window.location.href='index.html'" style="background:#00BFA6; padding:0.6rem 1.2rem; font-size:0.85rem; margin-bottom:1rem;">
+      ⚙️ Edit Preferences
+    </button>
+    
     <p>Choose how you want to scan your product:</p>
     
     <div class="scan-options">
@@ -378,11 +538,18 @@
   <div id="cameraModal">
     <div id="cameraContainer" class="camera-container">
       <h2 id="cameraTitle">Camera Capture</h2>
-      <video id="cameraFeed" autoplay playsinline></video>
-      <canvas id="barcodeCanvas"></canvas>
+      <div id="videoWrapper" style="position:relative;">
+        <video id="cameraFeed" autoplay playsinline></video>
+        <canvas id="barcodeCanvas"></canvas>
+        <!-- Barcode Guide Box -->
+        <div id="barcodeGuide" style="display:none; position:absolute; top:25%; left:15%; right:15%; bottom:25%; border:3px dashed #4CAF50; border-radius:10px; pointer-events:none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);">
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(76,175,80,0.9); color:white; padding:0.5rem 1rem; border-radius:0.5rem; font-size:0.9rem; white-space:nowrap;">
+            📱 Center barcode here
+          </div>
+        </div>
+      </div>
       <div class="camera-controls">
         <button id="captureBtn" onclick="capturePhoto()">📸 Capture</button>
-        <button id="manualScanBtn" onclick="manualBarcodeDetect()" style="display:none; background:#2196F3;">🔍 Try Detect</button>
         <button onclick="closeCamera()" style="background:#e53e3e;">✖ Cancel</button>
       </div>
       <p id="barcodeResult" style="margin-top:10px; color:#4CAF50; font-weight:bold;"></p>
@@ -396,6 +563,32 @@
     let cameraStream = null;
     let barcodeInterval = null;
     let isBarcodeMode = false;
+    let selectedDiets = [];
+    let selectedAllergens = [];
+    let customDiets = [];
+    let customAllergens = [];
+
+    // Load dietary preferences and allergens from localStorage (set in index.html)
+    function loadPreferences() {
+      const savedDiets = localStorage.getItem('ethica_diets');
+      const savedAllergens = localStorage.getItem('ethica_allergens');
+      const savedCustomDiets = localStorage.getItem('ethica_custom_diets');
+      const savedCustomAllergens = localStorage.getItem('ethica_custom_allergens');
+
+      if (savedDiets) selectedDiets = JSON.parse(savedDiets);
+      if (savedAllergens) selectedAllergens = JSON.parse(savedAllergens);
+      if (savedCustomDiets) customDiets = JSON.parse(savedCustomDiets);
+      if (savedCustomAllergens) customAllergens = JSON.parse(savedCustomAllergens);
+
+      // Combine standard and custom for analysis
+      const allDiets = [...selectedDiets, ...customDiets];
+      const allAllergens = [...selectedAllergens, ...customAllergens];
+
+      console.log('Loaded preferences - Diets:', allDiets, 'Allergens:', allAllergens);
+    }
+
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', loadPreferences);
 
     // CAMERA FUNCTIONS
     async function openCamera() {
@@ -404,9 +597,9 @@
       const video = document.getElementById('cameraFeed');
       
       // Update UI for photo capture mode
+      isBarcodeMode = false;
       document.getElementById('cameraTitle').textContent = 'Camera Capture';
       document.getElementById('captureBtn').style.display = 'inline-block';
-      document.getElementById('manualScanBtn').style.display = 'none';
       document.getElementById('cameraContainer').classList.remove('barcode-mode');
       document.getElementById('barcodeResult').textContent = '';
       
@@ -426,9 +619,21 @@
       const modal = document.getElementById('cameraModal');
       const video = document.getElementById('cameraFeed');
       
+      // Stop Quagga if in barcode mode
+      if (isBarcodeMode && window.Quagga) {
+        Quagga.stop();
+        Quagga.offDetected();
+      }
+      
       if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
+        if (typeof cameraStream === 'string') {
+          // Quagga stream reference - already stopped above
+          cameraStream = null;
+        } else {
+          // Regular MediaStream
+          cameraStream.getTracks().forEach(track => track.stop());
+          cameraStream = null;
+        }
       }
       
       if (barcodeInterval) {
@@ -439,6 +644,11 @@
       video.srcObject = null;
       modal.classList.remove('active');
       document.getElementById('barcodeResult').textContent = '';
+      document.getElementById('barcodeGuide').style.display = 'none';
+      
+      // Reset barcode mode
+      isBarcodeMode = false;
+      document.getElementById('cameraContainer').classList.remove('barcode-mode');
     }
 
     async function capturePhoto() {
@@ -457,173 +667,178 @@
       }, 'image/jpeg');
     }
 
-    // MANUAL BARCODE DETECTION
-    function manualBarcodeDetect() {
-      const video = document.getElementById('cameraFeed');
-      const canvas = document.getElementById('barcodeCanvas');
-      const ctx = canvas.getContext('2d');
-      const resultText = document.getElementById('barcodeResult');
-      
-      resultText.textContent = '🔍 Attempting detection...';
-      
-      if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        console.log('Manual scan - canvas size:', canvas.width, 'x', canvas.height);
-        
-        // Try multiple detection strategies
-        const strategies = [
-          { inversionAttempts: "attemptBoth" },
-          { inversionAttempts: "dontInvert" },
-          { inversionAttempts: "onlyInvert" },
-          { inversionAttempts: "attemptBoth", minQuality: 0.3 },
-          { inversionAttempts: "attemptBoth", minQuality: 0.1 }
-        ];
-        
-        let code = null;
-        for (let i = 0; i < strategies.length && !code; i++) {
-          try {
-            console.log('Trying strategy', i + 1, strategies[i]);
-            code = jsQR(imageData.data, imageData.width, imageData.height, strategies[i]);
-            if (code && code.data) {
-              console.log('✅ Success with strategy', i + 1);
-              break;
-            }
-          } catch (err) {
-            console.error('Strategy', i + 1, 'failed:', err);
-          }
-        }
-        
-        if (code && code.data) {
-          console.log('✅ Barcode detected:', code.data);
-          resultText.textContent = `✅ Found: ${code.data}`;
-          resultText.style.color = '#4CAF50';
-          
-          if (barcodeInterval) {
-            clearInterval(barcodeInterval);
-            barcodeInterval = null;
-          }
-          
-          setTimeout(() => {
-            closeCamera();
-            fetchProductFromBarcode(code.data);
-          }, 1000);
-        } else {
-          resultText.textContent = '❌ No barcode found. Move closer & ensure barcode fills frame.';
-          resultText.style.color = '#f44336';
-          console.log('All detection strategies failed');
-        }
-      } else {
-        resultText.textContent = '⚠️ Camera not ready. Wait a moment and try again.';
-        console.log('Video not ready:', video.readyState, video.videoWidth);
-      }
-    }
-
     // BARCODE SCANNER
     async function openBarcodeScanner() {
       isBarcodeMode = true;
-      console.log('openBarcodeScanner called');
-      console.log('jsQR available:', typeof jsQR);
+      console.log('openBarcodeScanner called - using Quagga');
       
       const modal = document.getElementById('cameraModal');
+      const videoWrapper = document.getElementById('videoWrapper');
       const video = document.getElementById('cameraFeed');
       const canvas = document.getElementById('barcodeCanvas');
       const resultText = document.getElementById('barcodeResult');
       
       // Update UI for barcode scanning mode
       document.getElementById('cameraTitle').textContent = 'Barcode Scanner';
-      document.getElementById('captureBtn').style.display = 'none'; // Hide capture button
-      document.getElementById('manualScanBtn').style.display = 'inline-block'; // Show manual scan button
-      document.getElementById('cameraContainer').classList.add('barcode-mode'); // Show canvas
+      document.getElementById('captureBtn').style.display = 'none';
+      document.getElementById('cameraContainer').classList.add('barcode-mode');
+      document.getElementById('barcodeGuide').style.display = 'block';
       
-      if (!window.jsQR) {
+      if (!window.Quagga) {
         alert('Barcode scanner library not loaded. Please refresh the page.');
         return;
       }
       
-      const ctx = canvas.getContext('2d');
-      
-      // Clear any existing interval
-      if (barcodeInterval) {
-        clearInterval(barcodeInterval);
-        barcodeInterval = null;
-      }
-      
       try {
-        resultText.textContent = '🔍 Starting camera...';
-        
-        cameraStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          } 
-        });
-        
-        video.srcObject = cameraStream;
-        await video.play();
+        resultText.innerHTML = `
+          <div style="text-align:left; background:#f5f5f5; padding:1rem; border-radius:0.5rem;">
+            <strong style="color:#4CAF50;">� Starting camera...</strong><br>
+            <div style="font-size:0.85rem; color:#666; margin-top:0.5rem;">
+              <strong>Tips for best scanning:</strong><br>
+              • Hold phone steady<br>
+              • Ensure good lighting<br>
+              • Center barcode in green box<br>
+              • Keep barcode flat & clear
+            </div>
+          </div>
+        `;
         modal.classList.add('active');
         
-        resultText.textContent = '🔍 Scanning for barcode... Hold steady!';
+        // Check camera availability
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera not supported on this device');
+        }
         
-        // Give video time to start
-        setTimeout(() => {
-          console.log('Starting barcode scan loop, video dimensions:', video.videoWidth, 'x', video.videoHeight);
-          
-          let scanCount = 0;
-          barcodeInterval = setInterval(() => {
-            scanCount++;
-            
-            if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
-              canvas.width = video.videoWidth;
-              canvas.height = video.videoHeight;
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              
-              const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-              
-              if (scanCount % 5 === 0) {
-                console.log('Scanning frame', scanCount, '- dimensions:', canvas.width, 'x', canvas.height);
-              }
-              
-              try {
-                // More aggressive detection with lower quality threshold
-                const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                  inversionAttempts: "attemptBoth",
-                });
-                
-                if (code && code.data) {
-                  console.log('✅ Barcode detected:', code.data);
-                  clearInterval(barcodeInterval);
-                  barcodeInterval = null;
-                  resultText.textContent = `✅ Found: ${code.data}`;
-                  resultText.style.color = '#4CAF50';
-                  
-                  // Vibrate if available
-                  if (navigator.vibrate) {
-                    navigator.vibrate(200);
-                  }
-                  
-                  setTimeout(() => {
-                    closeCamera();
-                    fetchProductFromBarcode(code.data);
-                  }, 1500);
-                } else if (scanCount % 10 === 0) {
-                  // Every 10 scans, show a tip
-                  resultText.textContent = '🔍 Scanning... Try moving closer or use "Try Detect" button';
-                }
-              } catch (err) {
-                console.error('jsQR processing error:', err);
-                clearInterval(barcodeInterval);
-                resultText.textContent = '❌ Scanner error. Use "Try Detect" button or try again.';
-              }
-            } else {
-              console.log('Video not ready yet, readyState:', video.readyState, 'dimensions:', video.videoWidth);
+        // Initialize Quagga with enhanced settings
+        Quagga.init({
+          inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: videoWrapper,  // Use wrapper div instead of video element directly
+            constraints: {
+              facingMode: "environment",
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              aspectRatio: { ideal: 16/9 }
+            },
+            area: { // Scanning area - center focus
+              top: "25%",
+              right: "15%",
+              left: "15%",
+              bottom: "25%"
             }
-          }, 250);
-        }, 500);
+          },
+          decoder: {
+            readers: [
+              "ean_reader",      // EAN-13, EAN-8 (most common worldwide)
+              "ean_8_reader",
+              "upc_reader",      // UPC-A, UPC-E (US/Canada)
+              "upc_e_reader",
+              "code_128_reader", // Code 128
+              "code_39_reader",  // Code 39
+              "code_39_vin_reader",
+              "codabar_reader",
+              "i2of5_reader"
+            ],
+            debug: {
+              drawBoundingBox: true,
+              showFrequency: false,
+              drawScanline: true,
+              showPattern: false
+            },
+            multiple: false
+          },
+          locate: true,
+          locator: {
+            halfSample: true,
+            patchSize: "medium",
+            debug: {
+              showCanvas: false,
+              showPatches: false,
+              showFoundPatches: false,
+              showSkeleton: false,
+              showLabels: false,
+              showPatchLabels: false,
+              showRemainingPatchLabels: false,
+              boxFromPatches: {
+                showTransformed: false,
+                showTransformedBox: false,
+                showBB: false
+              }
+            }
+          },
+          frequency: 10,
+          numOfWorkers: navigator.hardwareConcurrency || 4,
+          locate: true
+        }, function(err) {
+          if (err) {
+            console.error('Quagga init error:', err);
+            
+            // Provide helpful error messages
+            let errorMsg = 'Camera initialization failed';
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+              errorMsg = '📸 Camera permission denied.\n\nPlease:\n1. Click the camera icon in your browser address bar\n2. Allow camera access for this site\n3. Reload the page';
+            } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+              errorMsg = 'No camera found on this device';
+            } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+              errorMsg = 'Camera is already in use by another application';
+            } else if (err.message) {
+              errorMsg = 'Camera error: ' + err.message;
+            }
+            
+            resultText.textContent = '❌ ' + errorMsg;
+            alert(errorMsg);
+            closeCamera();
+            return;
+          }
+          
+          console.log("Quagga initialization finished. Ready to start");
+          resultText.textContent = '🔍 Scanning for barcode... Hold steady!';
+          Quagga.start();
+          
+          // Store stream reference
+          cameraStream = Quagga.CameraAccess.getActiveStreamLabel();
+        });
+        
+        // Handle detected barcodes with confidence checking
+        Quagga.onDetected(function(result) {
+          // Only accept high-confidence reads
+          if (!result || !result.codeResult || !result.codeResult.code) {
+            return;
+          }
+          
+          const code = result.codeResult.code;
+          const confidence = result.codeResult.decodedCodes
+            .filter(code => code.error !== undefined)
+            .reduce((sum, code) => sum + (1 - code.error), 0) / result.codeResult.decodedCodes.length;
+          
+          console.log(`Barcode detected: ${code}, Confidence: ${(confidence * 100).toFixed(1)}%`);
+          
+          // Require at least 70% confidence
+          if (confidence < 0.7) {
+            console.log('Low confidence, continuing scan...');
+            return;
+          }
+          
+          console.log('✅ High confidence barcode detected:', code);
+          
+          resultText.textContent = `✅ Found: ${code}`;
+          resultText.style.color = '#4CAF50';
+          
+          // Vibrate if available
+          if (navigator.vibrate) {
+            navigator.vibrate(200);
+          }
+          
+          // Stop Quagga and process barcode
+          Quagga.stop();
+          Quagga.offDetected();
+          
+          setTimeout(() => {
+            closeCamera();
+            fetchProductFromBarcode(code);
+          }, 500);
+        });
         
       } catch (err) {
         alert('Camera error: ' + err.message);
@@ -670,7 +885,32 @@
       updateProgress(20, 'Looking up product from barcode...');
       
       try {
-        const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        let response;
+        try {
+          // Try OpenFoodFacts first (largest database)
+          response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}`, {
+            signal: controller.signal
+          });
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError.name === 'AbortError') {
+            throw new Error('Barcode lookup timed out');
+          } else if (!navigator.onLine) {
+            throw new Error('No internet connection');
+          } else {
+            throw new Error(`Network error: ${fetchError.message}`);
+          }
+        }
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`Barcode lookup failed (${response.status})`);
+        }
+        
         const data = await response.json();
         
         if (data.status === 1 && data.product) {
@@ -678,8 +918,9 @@
           const ingredientsText = product.ingredients_text || product.ingredients_text_en || '';
           
           if (!ingredientsText) {
-            alert('Product found, but no ingredients listed. Please scan the ingredients label directly.');
             hideProgress();
+            closeCamera(); // Close the barcode scanner
+            alert(`✅ Product found: ${product.product_name || 'Unknown'}\n${product.brands ? 'Brand: ' + product.brands : ''}\n\n⚠️ Ingredients not available in database.\n\nThe OpenFoodFacts database has this product but the ingredient list hasn't been added yet.\n\n👉 Solution: Use the "Take Picture" or "Upload File" option to scan the ingredients label directly.`);
             return;
           }
           
@@ -689,12 +930,20 @@
           processBarcodedIngredients(ingredientsText);
           
         } else {
-          alert('Product not found in database. Please scan the ingredients label directly.');
+          alert(`⚠️ Product not found in database.\n\nBarcode: ${barcode}\n\nThis could mean:\n• Product is not yet in OpenFoodFacts database\n• Barcode is region-specific\n• Product is new/uncommon\n\nPlease scan the ingredients label directly using the photo option.`);
           hideProgress();
         }
       } catch (err) {
         console.error('Barcode lookup error:', err);
-        alert('Failed to look up barcode. Please try scanning the ingredients label.');
+        let errorMsg = 'Failed to look up barcode.';
+        
+        if (err.message.includes('No internet')) {
+          errorMsg = '❌ No internet connection.\n\nPlease check your network and try again.';
+        } else if (err.message.includes('timed out')) {
+          errorMsg = '⏱️ Barcode lookup timed out.\n\nPlease try again or scan the ingredients label directly.';
+        }
+        
+        alert(errorMsg + '\n\nYou can still scan the ingredients label using the photo option.');
         hideProgress();
       }
     }
@@ -788,22 +1037,79 @@
       try {
         updateProgress(60, 'Running analysis (this may take 20-30 seconds)...');
         
-        const analysisResponse = await fetch("https://ethica-backend-830766747753.us-central1.run.app/comprehensive-analysis", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            ingredients: ingredients,
-            userPreferences: userAllergens
-          })
+        // Combine standard and custom diets/allergens
+        const allDiets = [...selectedDiets, ...customDiets];
+        const allAllergens = [...selectedAllergens, ...customAllergens];
+        
+        // Build userPreferences object including custom allergens
+        const preferences = { ...userAllergens };
+        allAllergens.forEach(allergen => {
+          preferences[allergen] = true;
         });
+        
+        // Fetch with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+        
+        let analysisResponse;
+        try {
+          analysisResponse = await fetch("https://ethica-backend-830766747753.us-central1.run.app/comprehensive-analysis", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              ingredients: ingredients,
+              userPreferences: preferences,
+              dietaryPreferences: allDiets.length > 0 ? allDiets : ['none']
+            }),
+            signal: controller.signal
+          });
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError.name === 'AbortError') {
+            throw new Error('Analysis timed out. The server took too long to respond. Please try again with a shorter ingredient list or check your internet connection.');
+          } else if (!navigator.onLine) {
+            throw new Error('No internet connection. Please check your network and try again.');
+          } else {
+            throw new Error(`Network error: ${fetchError.message}`);
+          }
+        }
+        
+        clearTimeout(timeoutId);
 
-        if (!analysisResponse.ok) throw new Error(`Analysis failed`);
+        if (!analysisResponse.ok) {
+          const errorText = await analysisResponse.text().catch(() => 'Unknown error');
+          throw new Error(`Analysis failed (${analysisResponse.status}): ${errorText}`);
+        }
         
         const analysis = await analysisResponse.json();
         
-        if (analysis.error) throw new Error(analysis.error);
+        // Check for error in response
+        if (analysis.error) {
+          if (analysis.details && analysis.partialData) {
+            // Show partial results if available
+            console.warn('Incomplete analysis:', analysis.details);
+            updateProgress(100, 'Complete (with warnings)');
+            ocrTextElement.innerHTML += `<br>⚠️ Warning: Analysis incomplete - ${analysis.details.join(', ')}`;
+            
+            // Display what we have
+            if (analysis.partialData.environmental) displayEnvironmentalImpact(analysis.partialData.environmental);
+            if (analysis.partialData.allergens && analysis.partialData.dietary) {
+              displayAllergenResults(analysis.partialData.allergens, analysis.partialData.dietary);
+            }
+            if (analysis.partialData.recommendations) displayInsights(analysis.partialData.recommendations);
+            
+            setTimeout(hideProgress, 1000);
+            return;
+          }
+          throw new Error(analysis.error);
+        }
 
         updateProgress(100, 'Complete!');
+        
+        // Display confidence score if available
+        if (analysis.confidence) {
+          displayConfidence(analysis.confidence, analysis.confidenceFactors);
+        }
         
         displayEnvironmentalImpact(analysis.environmental);
         displayAllergenResults(analysis.allergens, analysis.dietary);
@@ -813,9 +1119,22 @@
         setTimeout(hideProgress, 1000);
 
       } catch (err) {
-        console.error(err);
+        console.error('Analysis error:', err);
         hideProgress();
-        ocrTextElement.innerHTML += `<br>❌ Analysis error: ${err.message}`;
+        
+        // User-friendly error messages
+        let errorMessage = err.message;
+        if (errorMessage.includes('Failed to fetch')) {
+          errorMessage = 'Unable to connect to server. Please check your internet connection and try again.';
+        }
+        
+        ocrTextElement.innerHTML += `<br><div style="background:#ffebee; padding:1rem; border-radius:0.5rem; border-left:4px solid #d32f2f; margin-top:1rem;">
+          <strong>❌ Analysis Error</strong><br>
+          <span style="color:#666;">${errorMessage}</span><br>
+          <button onclick="location.reload()" style="margin-top:0.5rem; padding:0.5rem 1rem; background:#4CAF50; color:white; border:none; border-radius:0.3rem; cursor:pointer;">
+            Try Again
+          </button>
+        </div>`;
       }
     }
 
@@ -866,47 +1185,82 @@
       const hasDefiniteViolations = allergens.definiteViolations && allergens.definiteViolations.length > 0;
       const hasCautionWarnings = allergens.cautionWarnings && allergens.cautionWarnings.length > 0;
       const hasDietaryViolations = dietary.violations && dietary.violations.length > 0;
+      
+      // Separate definite vs uncertain dietary violations
+      let definiteDietaryViolations = [];
+      let uncertainDietaryViolations = [];
+      
+      if (hasDietaryViolations) {
+        dietary.violations.forEach(violation => {
+          const violationLower = violation.toLowerCase();
+          // Check for uncertainty keywords
+          if (violationLower.includes('might') || 
+              violationLower.includes('may') || 
+              violationLower.includes('possibly') || 
+              violationLower.includes('could') ||
+              violationLower.includes('uncertain') ||
+              violationLower.includes('unclear') ||
+              violationLower.includes('not strictly') ||
+              violationLower.includes('potentially')) {
+            uncertainDietaryViolations.push(violation);
+          } else {
+            definiteDietaryViolations.push(violation);
+          }
+        });
+      }
 
       // GREEN: Safe to eat
-      if (!hasDefiniteViolations && !hasCautionWarnings && !hasDietaryViolations) {
+      if (!hasDefiniteViolations && !hasCautionWarnings && definiteDietaryViolations.length === 0 && uncertainDietaryViolations.length === 0) {
         resultDiv.innerHTML = "✅ <strong>You can eat this product!</strong>";
         resultDiv.className = "green";
       }
       // RED: Definite violations - AVOID
-      else if (hasDefiniteViolations || hasDietaryViolations) {
+      else if (hasDefiniteViolations || definiteDietaryViolations.length > 0) {
         let messages = [];
         
         if (hasDefiniteViolations) {
-          const allergenMsgs = allergens.definiteViolations.map(v => 
-            `<strong>${v.allergen}</strong> (found in: ${v.source})`
-          );
-          messages.push(`<strong>Allergens:</strong> ${allergenMsgs.join(", ")}`);
+          allergens.definiteViolations.forEach(v => {
+            messages.push(`<li><strong>${v.allergen}:</strong> Found in ${v.source}</li>`);
+          });
         }
 
-        if (hasDietaryViolations) {
-          messages.push(`<strong>Dietary:</strong> ${dietary.violations.join(", ")}`);
+        if (definiteDietaryViolations.length > 0) {
+          definiteDietaryViolations.forEach(v => {
+            messages.push(`<li>${v}</li>`);
+          });
         }
 
         resultDiv.innerHTML = `
           ⛔ <strong>AVOID THIS PRODUCT</strong>
           <div class="caution-details">
-            ${messages.join("<br>")}
+            <p style="margin:0.5rem 0 0.3rem 0; font-weight:600;">Reasons to avoid:</p>
+            <ul style="margin:0.3rem 0 0 1.2rem; padding:0;">${messages.join("")}</ul>
           </div>
         `;
         resultDiv.className = "red";
       }
-      // YELLOW: Caution warnings - BE CAREFUL
-      else if (hasCautionWarnings) {
-        const cautionMsgs = allergens.cautionWarnings.map(v => 
-          `<li><strong>${v.allergen}:</strong> ${v.warning || v.source}</li>`
-        );
+      // YELLOW: Caution warnings or uncertain dietary issues - BE CAREFUL
+      else if (hasCautionWarnings || uncertainDietaryViolations.length > 0) {
+        let cautionMsgs = [];
+        
+        if (hasCautionWarnings) {
+          allergens.cautionWarnings.forEach(v => {
+            cautionMsgs.push(`<li><strong>${v.allergen}:</strong> ${v.warning || v.source}</li>`);
+          });
+        }
+        
+        if (uncertainDietaryViolations.length > 0) {
+          uncertainDietaryViolations.forEach(v => {
+            cautionMsgs.push(`<li><strong>Dietary:</strong> ${v}</li>`);
+          });
+        }
 
         resultDiv.innerHTML = `
           ⚠️ <strong>BE CAUTIOUS WITH THIS PRODUCT</strong>
           <div class="caution-details">
             <p>Potential concerns:</p>
             <ul>${cautionMsgs.join("")}</ul>
-            <p><em>This product may be safe, but exercise caution if you have severe allergies.</em></p>
+            <p><em>This product may be safe, but exercise caution. Review the concerns above carefully.</em></p>
           </div>
         `;
         resultDiv.className = "yellow";
@@ -957,7 +1311,7 @@
       const tips = [];
 
       if (recommendations.insights && recommendations.insights.length > 0) {
-        tips.push(...recommendations.insights.slice(0, 2));
+        tips.push(...recommendations.insights.slice(0, 3));
       }
 
       if (recommendations.environmental && recommendations.environmental.length > 0) {
@@ -968,14 +1322,69 @@
         tips.push(`🔄 Alternative: ${recommendations.allergenFree[0]}`);
       }
 
-      const finalTips = tips.slice(0, 3);
       const container = document.getElementById('insightText');
       
-      if (finalTips.length > 0) {
-        container.innerHTML = `<strong>Quick Insights</strong><ul style="margin:8px 0 0 18px;padding:0;">${finalTips.map(t => `<li style="margin:6px 0;">${t}</li>`).join("")}</ul>`;
+      // Display Quick Insights
+      if (tips.length > 0) {
+        container.innerHTML = `<strong>Quick Insights</strong><ul style="margin:8px 0 0 18px;padding:0;">${tips.map(t => `<li style="margin:6px 0;">${t}</li>`).join("")}</ul>`;
       } else {
         container.innerHTML = '<strong>No additional insights available</strong>';
       }
+
+      // Display Better Alternatives in separate section (after Quick Insights)
+      if (recommendations.alternatives && recommendations.alternatives.length > 0) {
+        const alternativesHTML = recommendations.alternatives.map(alt => {
+          const brandText = alt.brand ? ` (${alt.brand})` : '';
+          return `<div style="background:white; padding:0.8rem; border-radius:0.5rem; margin:0.5rem 0; border-left:3px solid #4CAF50; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <strong style="color:#4CAF50;">🌟 ${alt.name}${brandText}</strong><br>
+            <span style="font-size:0.85rem; color:#666;">${alt.reason}</span>
+          </div>`;
+        }).join('');
+        
+        container.innerHTML += `
+          <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid #e0e0e0;">
+            <strong style="color:#2d5f3f; font-size:1.05rem;">Better Alternatives</strong>
+            <div style="margin-top:0.5rem;">${alternativesHTML}</div>
+          </div>`;
+      }
+    }
+
+    function displayConfidence(confidence, factors) {
+      const resultsDiv = document.getElementById("results");
+      const confidenceColor = confidence >= 80 ? '#4CAF50' : confidence >= 60 ? '#FBC02D' : '#FF9800';
+      const confidenceIcon = confidence >= 80 ? '✓' : confidence >= 60 ? '!' : '⚠';
+      
+      const factorsHTML = factors && factors.length > 0 
+        ? `<ul style="margin:0.5rem 0 0 1.2rem; font-size:0.85rem; color:#666;">
+            ${factors.map(f => `<li>${f}</li>`).join('')}
+          </ul>`
+        : '';
+      
+      const confidenceCard = `
+        <div class="result-card" style="border-left: 4px solid ${confidenceColor};">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span style="font-size:1.5rem;">${confidenceIcon}</span>
+            <h3 style="margin:0;">Analysis Confidence</h3>
+          </div>
+          <div style="background:#f5f5f5; padding:0.8rem; border-radius:0.5rem; margin-top:0.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-weight:500;">Confidence Level:</span>
+              <span style="font-size:1.3rem; font-weight:bold; color:${confidenceColor};">${confidence}%</span>
+            </div>
+            <div style="background:#e0e0e0; border-radius:10px; height:10px; overflow:hidden;">
+              <div style="background:${confidenceColor}; height:100%; width:${confidence}%; transition:width 0.5s;"></div>
+            </div>
+          </div>
+          ${factorsHTML}
+          <p style="margin:0.5rem 0 0 0; font-size:0.85rem; color:#666; font-style:italic;">
+            ${confidence >= 80 ? 'High confidence - analysis is highly reliable' : 
+              confidence >= 60 ? 'Moderate confidence - analysis is generally reliable' : 
+              'Lower confidence - some ingredient information may be unclear'}
+          </p>
+        </div>
+      `;
+      
+      resultsDiv.innerHTML = confidenceCard + resultsDiv.innerHTML;
     }
 
     function createComparisonChart(userScore) {
